@@ -71,16 +71,16 @@
         },
         {
             "name": "gibson-os/core",
-            "version": "v1.3.2",
+            "version": "v1.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gibson-os/core.git",
-                "reference": "3a5544e69663135dd49358ecdae9d2b47eb71717"
+                "reference": "974d42567aa322e9c4cb7f61f245561e46d0cf55"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gibson-os/core/zipball/3a5544e69663135dd49358ecdae9d2b47eb71717",
-                "reference": "3a5544e69663135dd49358ecdae9d2b47eb71717",
+                "url": "https://api.github.com/repos/gibson-os/core/zipball/974d42567aa322e9c4cb7f61f245561e46d0cf55",
+                "reference": "974d42567aa322e9c4cb7f61f245561e46d0cf55",
                 "shasum": ""
             },
             "require": {
@@ -122,9 +122,9 @@
             "notification-url": "https://packagist.org/downloads/",
             "support": {
                 "issues": "https://github.com/gibson-os/core/issues",
-                "source": "https://github.com/gibson-os/core/tree/v1.3.2"
+                "source": "https://github.com/gibson-os/core/tree/v1.3.3"
             },
-            "time": "2023-02-15T21:23:58+00:00"
+            "time": "2023-03-03T22:09:44+00:00"
         },
         {
             "name": "gibson-os/mdo",
@@ -1402,16 +1402,16 @@
         },
         {
             "name": "captainhook/captainhook",
-            "version": "5.15.0",
+            "version": "5.15.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/captainhookphp/captainhook.git",
-                "reference": "bfa05e1ff217ef22f2e71f8f0e852cec2a425f8a"
+                "reference": "728fe3847c57f2d9cd4c53a8c26bc5522b42a1d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/captainhookphp/captainhook/zipball/bfa05e1ff217ef22f2e71f8f0e852cec2a425f8a",
-                "reference": "bfa05e1ff217ef22f2e71f8f0e852cec2a425f8a",
+                "url": "https://api.github.com/repos/captainhookphp/captainhook/zipball/728fe3847c57f2d9cd4c53a8c26bc5522b42a1d0",
+                "reference": "728fe3847c57f2d9cd4c53a8c26bc5522b42a1d0",
                 "shasum": ""
             },
             "require": {
@@ -1473,7 +1473,7 @@
             ],
             "support": {
                 "issues": "https://github.com/captainhookphp/captainhook/issues",
-                "source": "https://github.com/captainhookphp/captainhook/tree/5.15.0"
+                "source": "https://github.com/captainhookphp/captainhook/tree/5.15.2"
             },
             "funding": [
                 {
@@ -1481,7 +1481,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-02-28T13:06:35+00:00"
+            "time": "2023-03-03T11:11:58+00:00"
         },
         {
             "name": "captainhook/plugin-composer",

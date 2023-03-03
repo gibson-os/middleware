@@ -33,6 +33,9 @@
             "@php:md",
             "@php:unit:run"
         ],
+        "docker:up": "docker-compose -f .docker/docker-compose.yaml up -d",
+        "docker:build": "docker-compose -f .docker/docker-compose.yaml build",
+        "docker:ssh": "echo run 'docker exec -it docker_gos_webserver_1 /bin/bash'",
         "php:cs:fix": "php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src --verbose",
         "php:cs:dry": "php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src --verbose --dry-run",
         "php:psalm": "php ./vendor/vimeo/psalm/psalm",
