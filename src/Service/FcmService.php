@@ -1,20 +1,19 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Middleware\Service;
+namespace GibsonOS\Module\Middleware\Service;
 
 use GibsonOS\Core\Attribute\GetEnv;
-use GibsonOS\Core\Dto\Fcm\Message;
 use GibsonOS\Core\Dto\Web\Body;
 use GibsonOS\Core\Dto\Web\Request;
 use GibsonOS\Core\Event\FcmEvent;
-use GibsonOS\Core\Exception\FcmException;
 use GibsonOS\Core\Exception\WebException;
-use GibsonOS\Core\Repository\User\DeviceRepository;
 use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Service\WebService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Core\Utility\StatusCode;
+use GibsonOS\Module\Middleware\Exception\FcmException;
+use GibsonOS\Module\Middleware\Model\Message;
 use Google\Auth\CredentialsLoader;
 use Psr\Log\LoggerInterface;
 
@@ -30,7 +29,6 @@ class FcmService
         private readonly WebService $webService,
         private readonly LoggerInterface $logger,
         private readonly EventService $eventService,
-        private readonly DeviceRepository $deviceRepository,
     ) {
         $this->url = self::URL . $this->projectId . '/';
     }
@@ -49,7 +47,7 @@ class FcmService
         $authToken = $credentials->fetchAuthToken();
 
         if (!isset($authToken['access_token'])) {
-            throw new FcmException('Access token not in googles oauth response!');
+            throw new FcmException('Access token not in googles oauth response!', StatusCode::NOT_FOUND);
         }
 
         $content = JsonUtility::encode(['message' => $message]);
@@ -70,13 +68,6 @@ class FcmService
         $body = JsonUtility::decode($body);
 
         if (isset($body['error'])) {
-            if ($body['error']['code'] === StatusCode::NOT_FOUND) {
-                $this->logger->error(sprintf('%s: %s', $message->getFcmToken(), $body['error']['message']));
-                $this->deviceRepository->removeFcmToken($message->getFcmToken());
-
-                return $this;
-            }
-
             throw new FcmException($body['error']['message'], $body['error']['code']);
         }
 

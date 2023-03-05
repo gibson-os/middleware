@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Middleware\Repository;
+namespace GibsonOS\Module\Middleware\Repository;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
-use GibsonOS\Middleware\Model\Instance;
+use GibsonOS\Module\Middleware\Model\Instance;
 
 class InstanceRepository extends AbstractRepository
 {

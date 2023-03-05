@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Middleware\Service;
+namespace GibsonOS\Module\Middleware\Service;
 
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -11,8 +11,8 @@ use GibsonOS\Core\Model\Role\User as RoleUser;
 use GibsonOS\Core\Model\User;
 use GibsonOS\Core\Repository\RoleRepository;
 use GibsonOS\Core\Service\SessionService;
-use GibsonOS\Middleware\Model\Instance;
-use GibsonOS\Middleware\Repository\InstanceRepository;
+use GibsonOS\Module\Middleware\Model\Instance;
+use GibsonOS\Module\Middleware\Repository\InstanceRepository;
 
 class InstanceService
 {

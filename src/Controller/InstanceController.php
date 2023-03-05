@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Middleware\Controller;
+namespace GibsonOS\Module\Middleware\Controller;
 
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetMappedModel;
@@ -12,9 +12,9 @@ use GibsonOS\Core\Exception\RequestError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
-use GibsonOS\Middleware\Model\Instance;
-use GibsonOS\Middleware\Repository\InstanceRepository;
-use GibsonOS\Middleware\Service\InstanceService;
+use GibsonOS\Module\Middleware\Model\Instance;
+use GibsonOS\Module\Middleware\Repository\InstanceRepository;
+use GibsonOS\Module\Middleware\Service\InstanceService;
 
 class InstanceController extends AbstractController
 {

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Middleware\Model;
+namespace GibsonOS\Module\Middleware\Model;
 
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
@@ -31,7 +31,7 @@ class Instance extends AbstractModel implements \JsonSerializable
     #[Column]
     private \DateTimeImmutable $expireDate;
 
-    #[Column]
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     #[Key(true)]
     private int $userId;
 

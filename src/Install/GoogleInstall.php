@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Middleware\Install;
+namespace GibsonOS\Module\Middleware\Install;
 
 use GibsonOS\Core\Dto\Install\Configuration;
 use GibsonOS\Core\Install\AbstractInstall;
