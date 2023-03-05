@@ -217,4 +217,16 @@ class Message extends AbstractModel
 
         return $this;
     }
+
+    public function getInstanceId(): int
+    {
+        return $this->instanceId;
+    }
+
+    public function setInstanceId(int $instanceId): Message
+    {
+        $this->instanceId = $instanceId;
+
+        return $this;
+    }
 }
