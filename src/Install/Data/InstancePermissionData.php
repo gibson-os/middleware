@@ -7,13 +7,14 @@ use GibsonOS\Core\Dto\Install\Success;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Install\AbstractInstall;
+use GibsonOS\Core\Install\SingleInstallInterface;
 use GibsonOS\Core\Manager\ServiceManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Repository\User\PermissionRepository;
 use GibsonOS\Core\Service\InstallService;
 use GibsonOS\Core\Service\PriorityInterface;
 
-class InstancePermissionData extends AbstractInstall implements PriorityInterface
+class InstancePermissionData extends AbstractInstall implements PriorityInterface, SingleInstallInterface
 {
     public function __construct(
         ServiceManager $serviceManagerService,

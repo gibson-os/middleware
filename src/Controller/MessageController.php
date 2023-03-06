@@ -3,17 +3,20 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Middleware\Controller;
 
-use GibsonOS\Core\Attribute\GetMappedModel;
+use GibsonOS\Core\Attribute\CheckPermission;
+use GibsonOS\Core\Attribute\GetObject;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\WebException;
 use GibsonOS\Core\Manager\ModelManager;
+use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
+use GibsonOS\Core\Utility\StatusCode;
 use GibsonOS\Module\Middleware\Attribute\GetInstance;
 use GibsonOS\Module\Middleware\Exception\FcmException;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Model\Message;
-use GibsonOS\Module\Middleware\Service\FcmService;
+use GibsonOS\Module\Middleware\Repository\MessageRepository;
 
 class MessageController extends AbstractController
 {
@@ -23,14 +26,18 @@ class MessageController extends AbstractController
      * @throws FcmException
      * @throws \JsonException
      */
+    #[CheckPermission(Permission::WRITE)]
     public function push(
-        FcmService $fcmService,
+        MessageRepository $messageRepository,
         ModelManager $modelManager,
-        #[GetMappedModel] Message $message,
+        #[GetObject] Message $message,
         #[GetInstance] Instance $instance,
     ): AjaxResponse {
+        if ($messageRepository->fcmTokenNotFound($message->getFcmToken())) {
+            return $this->returnFailure('FCM token not found', StatusCode::NOT_FOUND);
+        }
+
         $message->setInstance($instance);
-        $fcmService->pushMessage($message);
         $modelManager->saveWithoutChildren($message);
 
         return $this->returnSuccess();

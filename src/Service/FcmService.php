@@ -6,12 +6,9 @@ namespace GibsonOS\Module\Middleware\Service;
 use GibsonOS\Core\Attribute\GetEnv;
 use GibsonOS\Core\Dto\Web\Body;
 use GibsonOS\Core\Dto\Web\Request;
-use GibsonOS\Core\Event\FcmEvent;
 use GibsonOS\Core\Exception\WebException;
-use GibsonOS\Core\Service\EventService;
 use GibsonOS\Core\Service\WebService;
 use GibsonOS\Core\Utility\JsonUtility;
-use GibsonOS\Core\Utility\StatusCode;
 use GibsonOS\Module\Middleware\Exception\FcmException;
 use GibsonOS\Module\Middleware\Model\Message;
 use Google\Auth\CredentialsLoader;
@@ -28,7 +25,6 @@ class FcmService
         #[GetEnv('GOOGLE_APPLICATION_CREDENTIALS')] private readonly string $googleCredentialFile,
         private readonly WebService $webService,
         private readonly LoggerInterface $logger,
-        private readonly EventService $eventService,
     ) {
         $this->url = self::URL . $this->projectId . '/';
     }
@@ -47,7 +43,7 @@ class FcmService
         $authToken = $credentials->fetchAuthToken();
 
         if (!isset($authToken['access_token'])) {
-            throw new FcmException('Access token not in googles oauth response!', StatusCode::NOT_FOUND);
+            throw new FcmException('Access token not in googles oauth response!');
         }
 
         $content = JsonUtility::encode(['message' => $message]);
@@ -59,10 +55,7 @@ class FcmService
             ->setBody((new Body())->setContent($content, mb_strlen($content)))
         ;
 
-        $this->eventService->fire(FcmEvent::class, FcmEvent::TRIGGER_BEFORE_PUSH_MESSAGE);
         $response = $this->webService->post($request);
-        $this->eventService->fire(FcmEvent::class, FcmEvent::TRIGGER_AFTER_PUSH_MESSAGE);
-
         $body = $response->getBody()->getContent();
         $this->logger->debug(sprintf('FCM push response: %s', $body));
         $body = JsonUtility::decode($body);

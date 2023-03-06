@@ -21,10 +21,6 @@ class InstanceAttribute implements ParameterAttributeInterface, AttributeService
     ) {
     }
 
-    /**
-     * @throws SelectError
-     * @throws RequestError
-     */
     public function replace(
         AttributeInterface $attribute,
         array $parameters,
@@ -34,6 +30,10 @@ class InstanceAttribute implements ParameterAttributeInterface, AttributeService
             return null;
         }
 
-        return $this->instanceRepository->getByToken($this->requestService->getHeader('X-GibsonOs-Token'));
+        try {
+            return $this->instanceRepository->getByToken($this->requestService->getHeader('X-GibsonOs-Token'));
+        } catch (SelectError|RequestError) {
+            return null;
+        }
     }
 }

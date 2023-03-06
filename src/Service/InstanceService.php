@@ -45,8 +45,8 @@ class InstanceService
         $user = (new User())->setUser($instance->getUrl());
         $this->modelManager->saveWithoutChildren($user);
         $roleUser = (new RoleUser())->setUser($user);
-        $this->modelManager->saveWithoutChildren($roleUser);
         $this->modelManager->saveWithoutChildren($this->roleRepository->getByName('Middleware')->addUsers([$roleUser]));
+        $this->modelManager->saveWithoutChildren($roleUser);
         $instance->setUser($user);
 
         return $instance;

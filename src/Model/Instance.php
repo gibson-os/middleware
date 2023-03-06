@@ -29,7 +29,7 @@ class Instance extends AbstractModel implements \JsonSerializable
     private string $token;
 
     #[Column]
-    private \DateTimeImmutable $expireDate;
+    private \DateTimeInterface $expireDate;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     #[Key(true)]
@@ -74,12 +74,12 @@ class Instance extends AbstractModel implements \JsonSerializable
         return $this;
     }
 
-    public function getExpireDate(): \DateTimeImmutable
+    public function getExpireDate(): \DateTimeInterface
     {
         return $this->expireDate;
     }
 
-    public function setExpireDate(\DateTimeImmutable $expireDate): Instance
+    public function setExpireDate(\DateTimeInterface $expireDate): Instance
     {
         $this->expireDate = $expireDate;
 

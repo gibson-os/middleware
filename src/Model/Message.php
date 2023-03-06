@@ -10,46 +10,61 @@ use GibsonOS\Core\Enum\Middleware\Message\Priority;
 use GibsonOS\Core\Enum\Middleware\Message\Type;
 use GibsonOS\Core\Enum\Middleware\Message\Vibrate;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Core\Utility\JsonUtility;
 
 /**
  * @method Message  setInstance(Instance $instance)
  * @method Instance getInstance()
  */
 #[Table]
-class Message extends AbstractModel
+class Message extends AbstractModel implements \JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
 
-    #[Column]
-    private string $token;
+    #[Column(length: 512)]
+    private ?string $token = null;
 
-    #[Column]
+    #[Column(length: 512)]
     private string $fcmToken;
 
     #[Column]
     private Type $type = Type::NOTIFICATION;
 
+    #[Column(length: 512)]
     private ?string $title = null;
 
+    #[Column(length: 512)]
     private ?string $body = null;
 
-    private string $module = 'core';
+    #[Column(length: 32)]
+    private string $module;
 
-    private string $task = 'desktop';
+    #[Column(length: 32)]
+    private string $task;
 
-    private string $action = 'index';
+    #[Column(length: 32)]
+    private string $action;
 
+    #[Column]
     private array $data = [];
 
+    #[Column]
     private Priority $priority = Priority::NORMAL;
 
+    #[Column]
     private ?Vibrate $vibrate = null;
 
     #[Column]
     private \DateTimeInterface $added;
 
     #[Column]
+    private ?\DateTimeInterface $sent = null;
+
+    #[Column]
+    private bool $notFound = false;
+
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $instanceId;
 
     #[Constraint]
@@ -74,12 +89,12 @@ class Message extends AbstractModel
         return $this;
     }
 
-    public function getToken(): string
+    public function getToken(): ?string
     {
         return $this->token;
     }
 
-    public function setToken(string $token): Message
+    public function setToken(?string $token): Message
     {
         $this->token = $token;
 
@@ -228,5 +243,59 @@ class Message extends AbstractModel
         $this->instanceId = $instanceId;
 
         return $this;
+    }
+
+    public function getSent(): ?\DateTimeInterface
+    {
+        return $this->sent;
+    }
+
+    public function setSent(?\DateTimeInterface $sent): Message
+    {
+        $this->sent = $sent;
+
+        return $this;
+    }
+
+    public function isNotFound(): bool
+    {
+        return $this->notFound;
+    }
+
+    public function setNotFound(bool $notFound): Message
+    {
+        $this->notFound = $notFound;
+
+        return $this;
+    }
+
+    /**
+     * @throws \JsonException
+     */
+    public function jsonSerialize(): array
+    {
+        $data = [
+            'token' => $this->getFcmToken(),
+            'android' => [
+                'priority' => $this->priority->value,
+            ],
+        ];
+
+        $data['data'] = [
+            'token' => $this->getToken(),
+            'type' => $this->getType()->value,
+            'module' => $this->getModule(),
+            'task' => $this->getTask(),
+            'action' => $this->getAction(),
+            'vibrate' => JsonUtility::encode($this->getVibrate()?->getPattern() ?? []),
+            'title' => $this->getTitle(),
+            'body' => $this->getBody(),
+        ];
+
+        if (count($this->getData())) {
+            $data['data']['payload'] = JsonUtility::encode($this->getData(), JSON_THROW_ON_ERROR);
+        }
+
+        return $data;
     }
 }

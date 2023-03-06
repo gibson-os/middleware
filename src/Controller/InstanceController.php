@@ -33,7 +33,7 @@ class InstanceController extends AbstractController
         ModelManager $modelManager,
     ): AjaxResponse {
         if ($instance->getId() !== null) {
-            $tokenInstance = $instanceRepository->getByToken($this->requestService->getHeader('X-Device-Token'));
+            $tokenInstance = $instanceRepository->getByToken($this->requestService->getHeader('X-GibsonOs-Token'));
 
             if ($instance->getId() !== $tokenInstance->getId()) {
                 return $this->returnFailure('Invalid token');
