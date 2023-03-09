@@ -41,7 +41,7 @@ class ChromecastController extends AbstractController
         #[GetModel] Session $session,
     ): AjaxResponse {
         $response = $webService->get(
-            (new Request(sprintf('%sexplorer/html5/toSeeMiddleware', $session->getInstance()->getUrl())))
+            (new Request(sprintf('%sexplorer/middleware/toSeeList', $session->getInstance()->getUrl())))
                 ->setHeaders(['Content-Type' => 'application/json'])
         );
 
