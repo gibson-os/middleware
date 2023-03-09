@@ -15,6 +15,7 @@ use GibsonOS\Core\Exception\WebException;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
+use GibsonOS\Core\Service\Response\TwigResponse;
 use GibsonOS\Core\Service\WebService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Core\Utility\StatusCode;
@@ -110,5 +111,11 @@ class ChromecastController extends AbstractController
         $modelManager->save($session);
 
         return $this->returnSuccess();
+    }
+
+    #[CheckPermission(Permission::READ)]
+    public function show(): TwigResponse
+    {
+        return $this->renderTemplate('@middleware/chromecast.html.twig');
     }
 }
