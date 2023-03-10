@@ -21,12 +21,12 @@ use GibsonOS\Module\Middleware\Model\Instance;
 #[Table]
 class Session extends AbstractModel
 {
-    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
-    private ?int $id = null;
-
-    #[Column(length: 48)]
+    #[Column(length: 48, primary: true)]
     #[Key(true)]
-    private string $sessionId;
+    private string $id;
+
+    #[Column]
+    private \DateTimeInterface $started;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $instanceId;
@@ -37,26 +37,21 @@ class Session extends AbstractModel
     #[Constraint('session', User::class)]
     protected array $users;
 
-    public function getId(): ?int
+    public function __construct(\mysqlDatabase $database = null)
+    {
+        parent::__construct($database);
+
+        $this->started = new \DateTimeImmutable();
+    }
+
+    public function getId(): string
     {
         return $this->id;
     }
 
-    public function setId(?int $id): Session
+    public function setId(string $id): Session
     {
         $this->id = $id;
-
-        return $this;
-    }
-
-    public function getSessionId(): string
-    {
-        return $this->sessionId;
-    }
-
-    public function setSessionId(string $sessionId): Session
-    {
-        $this->sessionId = $sessionId;
 
         return $this;
     }
@@ -69,6 +64,18 @@ class Session extends AbstractModel
     public function setInstanceId(int $instanceId): Session
     {
         $this->instanceId = $instanceId;
+
+        return $this;
+    }
+
+    public function getStarted(): \DateTimeInterface
+    {
+        return $this->started;
+    }
+
+    public function setStarted(\DateTimeInterface $started): Session
+    {
+        $this->started = $started;
 
         return $this;
     }

@@ -41,9 +41,10 @@ class ChromecastController extends AbstractController
         WebService $webService,
         #[GetModel] Session $session,
     ): AjaxResponse {
-        $response = $webService->get(
+        $response = $webService->post(
             (new Request(sprintf('%sexplorer/middleware/toSeeList', $session->getInstance()->getUrl())))
-                ->setHeaders(['Content-Type' => 'application/json'])
+                ->setParameters(['sessionId' => $session->getId()])
+                ->setHeaders(['X-Requested-With' => 'XMLHttpRequest'])
         );
 
         if ($response->getStatusCode() !== StatusCode::OK) {
@@ -61,16 +62,17 @@ class ChromecastController extends AbstractController
     #[CheckPermission(Permission::WRITE)]
     public function setSession(
         ModelManager $modelManager,
-        #[GetModel(['session_id' => 'sessionId'])] Session $session
+        #[GetMappedModel] Session $session,
+        #[GetInstance] Instance $instance,
     ): AjaxResponse {
-        $modelManager->saveWithoutChildren($session);
+        $modelManager->saveWithoutChildren($session->setInstance($instance));
 
         return $this->returnSuccess();
     }
 
     #[CheckPermission(Permission::READ)]
     public function getSessionUserIds(
-        #[GetModel(['session_id' => 'sessionId'])] Session $session,
+        #[GetModel] Session $session,
         #[GetInstance] Instance $instance,
     ): AjaxResponse {
         if ($instance->getId() !== $session->getInstanceId()) {
@@ -104,7 +106,7 @@ class ChromecastController extends AbstractController
     #[CheckPermission(Permission::WRITE)]
     public function setUsers(
         ModelManager $modelManager,
-        #[GetModel(['session_id' => 'sessionId'])] Session $session,
+        #[GetModel(['id' => 'sessionId'])] Session $session,
         #[GetMappedModels(User::class, ['session_id' => 'sessionId', 'user_id' => 'userId'])] array $users,
     ): AjaxResponse {
         $session->setUsers($users);

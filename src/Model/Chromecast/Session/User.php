@@ -22,14 +22,24 @@ class User extends AbstractModel
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $userId;
 
-    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
-    private int $sessionId;
+    #[Column(length: 48)]
+    private string $sessionId;
 
-    #[Column(length: 255)]
-    private int $senderId;
+    #[Column(length: 64)]
+    private string $senderId;
+
+    #[Column]
+    private \DateTimeInterface $added;
 
     #[Constraint(name: 'fkChromecast_session_userChromecast_session')]
     protected Session $session;
+
+    public function __construct(\mysqlDatabase $database = null)
+    {
+        parent::__construct($database);
+
+        $this->added = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -55,26 +65,38 @@ class User extends AbstractModel
         return $this;
     }
 
-    public function getSessionId(): int
+    public function getSessionId(): string
     {
         return $this->sessionId;
     }
 
-    public function setSessionId(int $sessionId): User
+    public function setSessionId(string $sessionId): User
     {
         $this->sessionId = $sessionId;
 
         return $this;
     }
 
-    public function getSenderId(): int
+    public function getSenderId(): string
     {
         return $this->senderId;
     }
 
-    public function setSenderId(int $senderId): User
+    public function setSenderId(string $senderId): User
     {
         $this->senderId = $senderId;
+
+        return $this;
+    }
+
+    public function getAdded(): \DateTimeInterface
+    {
+        return $this->added;
+    }
+
+    public function setAdded(\DateTimeInterface $added): User
+    {
+        $this->added = $added;
 
         return $this;
     }
