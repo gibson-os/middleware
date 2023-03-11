@@ -15,6 +15,8 @@ use GibsonOS\Core\Exception\WebException;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
+use GibsonOS\Core\Service\Response\Response;
+use GibsonOS\Core\Service\Response\ResponseInterface;
 use GibsonOS\Core\Service\Response\TwigResponse;
 use GibsonOS\Core\Service\WebService;
 use GibsonOS\Core\Utility\JsonUtility;
@@ -119,5 +121,53 @@ class ChromecastController extends AbstractController
     public function show(): TwigResponse
     {
         return $this->renderTemplate('@middleware/chromecast.html.twig');
+    }
+
+    #[CheckPermission(Permission::READ)]
+    public function image(
+        WebService $webService,
+        #[GetModel] Session $session,
+        string $token,
+        int $width = null,
+        int $height = null,
+    ): ResponseInterface {
+        $parameters = [
+            'sessionId' => $session->getId(),
+            'token' => $token,
+        ];
+
+        if ($width !== null) {
+            $parameters['width'] = (string) $width;
+        }
+
+        if ($height !== null) {
+            $parameters['height'] = (string) $height;
+        }
+
+        $response = $webService->post(
+            (new Request(sprintf('%sexplorer/middleware/image', $session->getInstance()->getUrl())))
+                ->setParameters($parameters)
+        );
+
+        $body = $response->getBody()->getContent();
+
+        if ($response->getStatusCode() !== StatusCode::OK) {
+            return $this->returnFailure($body);
+        }
+
+        return new Response(
+            $body,
+            StatusCode::OK,
+            [
+                'Pragma' => 'public',
+                'Expires' => 0,
+                'Accept-Ranges' => 'bytes',
+                'Cache-Control' => ['must-revalidate, post-check=0, pre-check=0', 'private'],
+                'Content-Type' => 'image/jpg',
+                'Content-Length' => strlen($body),
+                'Content-Transfer-Encoding' => 'binary',
+                'Content-Disposition' => 'inline; filename*=UTF-8\'\'image.jpg filename="image.jpg"',
+            ]
+        );
     }
 }
