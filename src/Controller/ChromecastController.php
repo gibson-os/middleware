@@ -49,11 +49,13 @@ class ChromecastController extends AbstractController
                 ->setHeaders(['X-Requested-With' => 'XMLHttpRequest'])
         );
 
+        $body = $response->getBody()->getContent();
+
         if ($response->getStatusCode() !== StatusCode::OK) {
-            return $this->returnFailure($response->getBody()->getContent());
+            return $this->returnFailure($body);
         }
 
-        $body = JsonUtility::decode($response->getBody()->getContent());
+        $body = JsonUtility::decode($body);
 
         return $this->returnSuccess($body['data'] ?? [], $body['total'] ?? 0);
     }
@@ -106,15 +108,56 @@ class ChromecastController extends AbstractController
      * @throws \ReflectionException
      */
     #[CheckPermission(Permission::WRITE)]
-    public function setUsers(
+    public function savePosition(
+        WebService $webService,
         ModelManager $modelManager,
-        #[GetModel(['id' => 'sessionId'])] Session $session,
+        #[GetModel] Session $session,
         #[GetMappedModels(User::class, ['session_id' => 'sessionId', 'user_id' => 'userId'])] array $users,
+        string $token,
+        int $position,
     ): AjaxResponse {
         $session->setUsers($users);
         $modelManager->save($session);
 
+        $response = $webService->post(
+            (new Request(sprintf('%sexplorer/middleware/savePosition', $session->getInstance()->getUrl())))
+                ->setParameters([
+                    'sessionId' => $session->getId(),
+                    'token' => $token,
+                    'position' => (string) $position,
+                ])
+        );
+
+        if ($response->getStatusCode() !== StatusCode::OK) {
+            return $this->returnFailure($response->getBody()->getContent());
+        }
+
         return $this->returnSuccess();
+    }
+
+    #[CheckPermission(Permission::READ)]
+    public function get(
+        WebService $webService,
+        #[GetModel] Session $session,
+        string $token,
+    ): AjaxResponse {
+        $response = $webService->post(
+            (new Request(sprintf('%sexplorer/middleware/get', $session->getInstance()->getUrl())))
+                ->setParameters([
+                    'sessionId' => $session->getId(),
+                    'token' => $token,
+                ])
+                ->setHeaders(['X-Requested-With' => 'XMLHttpRequest'])
+        );
+
+        $body = $response->getBody()->getContent();
+        error_log($body);
+
+        if ($response->getStatusCode() !== StatusCode::OK) {
+            return $this->returnFailure($body);
+        }
+
+        return $this->returnSuccess(JsonUtility::decode($body)['data']);
     }
 
     #[CheckPermission(Permission::READ)]

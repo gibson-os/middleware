@@ -62,7 +62,7 @@ jQuery(function() {
     playerManager.setMediaElement(media.get(0));
     castReceiverManager.start();
 
-    const getConnectedUser = () => {
+    const getConnectedUsers = () => {
         let newConnectedUsers = {};
         let newConnectedUserIds = {};
         let connectedUserObjects = [];
@@ -252,26 +252,18 @@ jQuery(function() {
         requestActive = true;
 
         jQuery.ajax({
-            url: '/middleware/chromecast/setUsers',
+            url: '/middleware/chromecast/savePosition',
             method: 'POST',
             data: {
-                users: getConnectedUser(),
-                sessionId: castReceiverManager.getApplicationData().sessionId
+                id: castReceiverManager.getApplicationData().sessionId,
+                token: playerManager.getMediaInformation().contentId,
+                position: position,
+                users: getConnectedUsers(),
             },
             complete() {
-                jQuery.ajax({
-                    url: '/middleware/chromecast/savePosition',
-                    method: 'POST',
-                    data: {
-                        token: playerManager.getMediaInformation().contentId,
-                        position: position,
-                    },
-                    complete() {
-                        setTimeout(function() {
-                            requestActive = false;
-                        }, 3000);
-                    }
-                });
+                setTimeout(function() {
+                    requestActive = false;
+                }, 3000);
             }
         });
     };
@@ -333,6 +325,7 @@ jQuery(function() {
             url: '/middleware/chromecast/get',
             method: 'POST',
             data: {
+                id: castReceiverManager.getApplicationData().sessionId,
                 token: mediaInformation.contentId
             }
         }).done(function (data) {
