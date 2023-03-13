@@ -2,9 +2,20 @@
 <head>
     <title>Gibson OS Cast</title>
     <link rel="stylesheet" type="text/css" href="/css/chromecast.css" />
-    <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+{#    <link rel="stylesheet" type="text/css" href="/core/css/index/module/middleware/task/chromecast" />#}
+    <script type="text/javascript">
+        /* <![CDATA[ */
+        const Chromecast = {};
+        /* ]]> */
+    </script>
     <script src="/js/jquery-3.3.1.min.js"></script>
+    <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
     <script src="/core/javascript/index/module/middleware/task/chromecast/withDefault/false"></script>
+    <script type="text/javascript">
+        /* <![CDATA[ */
+        jQuery(Chromecast.init);
+        /* ]]> */
+    </script>
 </head>
 <body>
 

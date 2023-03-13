@@ -22,6 +22,7 @@ use GibsonOS\Core\Service\WebService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Core\Utility\StatusCode;
 use GibsonOS\Module\Middleware\Attribute\GetInstance;
+use GibsonOS\Module\Middleware\Model\Chromecast\Error;
 use GibsonOS\Module\Middleware\Model\Chromecast\Session;
 use GibsonOS\Module\Middleware\Model\Chromecast\Session\User;
 use GibsonOS\Module\Middleware\Model\Instance;
@@ -126,6 +127,7 @@ class ChromecastController extends AbstractController
                     'token' => $token,
                     'position' => (string) $position,
                 ])
+                ->setHeaders(['X-Requested-With' => 'XMLHttpRequest'])
         );
 
         if ($response->getStatusCode() !== StatusCode::OK) {
@@ -151,7 +153,6 @@ class ChromecastController extends AbstractController
         );
 
         $body = $response->getBody()->getContent();
-        error_log($body);
 
         if ($response->getStatusCode() !== StatusCode::OK) {
             return $this->returnFailure($body);
@@ -212,5 +213,15 @@ class ChromecastController extends AbstractController
                 'Content-Disposition' => 'inline; filename*=UTF-8\'\'image.jpg filename="image.jpg"',
             ]
         );
+    }
+
+    #[CheckPermission(Permission::WRITE)]
+    public function error(
+        #[GetMappedModel] Error $error,
+        ModelManager $modelManager,
+    ): AjaxResponse {
+        $modelManager->saveWithoutChildren($error);
+
+        return $this->returnSuccess();
     }
 }
