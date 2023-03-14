@@ -33,6 +33,7 @@ class ChromecastPermissionData extends AbstractInstall implements PriorityInterf
         $this->setPermission('show', Permission::READ);
         $this->setPermission('addUser', Permission::WRITE);
         $this->setPermission('toSeeList', Permission::READ);
+        $this->setPermission('image', Permission::READ);
         $this->setPermission('get', Permission::READ);
         $this->setPermission('savePosition', Permission::WRITE);
         $this->setPermission('error', Permission::WRITE);

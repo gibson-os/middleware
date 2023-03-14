@@ -71,16 +71,16 @@
         },
         {
             "name": "gibson-os/core",
-            "version": "v1.3.12",
+            "version": "1.3.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gibson-os/core.git",
-                "reference": "792cbc73af6c6829e11882793dba7fd2340cf58c"
+                "reference": "f7e22ee2974378e8d0b5d029a4ca69453e19e007"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gibson-os/core/zipball/792cbc73af6c6829e11882793dba7fd2340cf58c",
-                "reference": "792cbc73af6c6829e11882793dba7fd2340cf58c",
+                "url": "https://api.github.com/repos/gibson-os/core/zipball/f7e22ee2974378e8d0b5d029a4ca69453e19e007",
+                "reference": "f7e22ee2974378e8d0b5d029a4ca69453e19e007",
                 "shasum": ""
             },
             "require": {
@@ -123,9 +123,9 @@
             "notification-url": "https://packagist.org/downloads/",
             "support": {
                 "issues": "https://github.com/gibson-os/core/issues",
-                "source": "https://github.com/gibson-os/core/tree/v1.3.12"
+                "source": "https://github.com/gibson-os/core/tree/1.3.13"
             },
-            "time": "2023-03-13T21:39:46+00:00"
+            "time": "2023-03-14T20:49:40+00:00"
         },
         {
             "name": "gibson-os/mdo",
@@ -2659,16 +2659,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.15.0",
+            "version": "v3.15.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "7306744c63e9cc1337894252b4eec4920c38b053"
+                "reference": "d48755372a113bddb99f749e34805d83f3acfe04"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/7306744c63e9cc1337894252b4eec4920c38b053",
-                "reference": "7306744c63e9cc1337894252b4eec4920c38b053",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/d48755372a113bddb99f749e34805d83f3acfe04",
+                "reference": "d48755372a113bddb99f749e34805d83f3acfe04",
                 "shasum": ""
             },
             "require": {
@@ -2743,7 +2743,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.15.0"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.15.1"
             },
             "funding": [
                 {
@@ -2751,7 +2751,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-03-12T22:44:55+00:00"
+            "time": "2023-03-13T23:26:30+00:00"
         },
         {
             "name": "myclabs/deep-copy",
