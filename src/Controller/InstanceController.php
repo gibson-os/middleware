@@ -43,6 +43,12 @@ class InstanceController extends AbstractController
         }
 
         $instanceService->setToken($instance);
+        $url = $instance->getUrl();
+
+        if (mb_substr($url, -1) !== '/') {
+            $instance->setUrl($url . '/');
+        }
+
         $instanceService->sendRequest(
             $instance,
             'core',
@@ -53,11 +59,6 @@ class InstanceController extends AbstractController
 
         if ($instance->getId() === null) {
             $instanceService->addInstanceUser($instance);
-            $url = $instance->getUrl();
-
-            if (mb_substr($url, -1) !== '/') {
-                $instance->setUrl($url . '/');
-            }
         }
 
         $modelManager->saveWithoutChildren($instance);

@@ -35,7 +35,7 @@ class InstanceService
         try {
             $instance = $this->instanceRepository->getByToken($token);
 
-            if ($instance->getExpireDate() > new \DateTimeImmutable()) {
+            if (new \DateTimeImmutable() > $instance->getExpireDate()) {
                 throw new UserError('Token expired');
             }
 
