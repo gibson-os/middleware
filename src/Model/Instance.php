@@ -28,6 +28,9 @@ class Instance extends AbstractModel implements \JsonSerializable
     #[Key(true)]
     private string $token;
 
+    #[Column(length: 256)]
+    private string $secret;
+
     #[Column]
     private \DateTimeInterface $expireDate;
 
@@ -94,6 +97,18 @@ class Instance extends AbstractModel implements \JsonSerializable
     public function setUserId(int $userId): Instance
     {
         $this->userId = $userId;
+
+        return $this;
+    }
+
+    public function getSecret(): string
+    {
+        return $this->secret;
+    }
+
+    public function setSecret(string $secret): Instance
+    {
+        $this->secret = $secret;
 
         return $this;
     }

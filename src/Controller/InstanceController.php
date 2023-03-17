@@ -12,6 +12,7 @@ use GibsonOS\Core\Exception\RequestError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
+use GibsonOS\Module\Middleware\Exception\InstanceException;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Repository\InstanceRepository;
 use GibsonOS\Module\Middleware\Service\InstanceService;
@@ -24,6 +25,7 @@ class InstanceController extends AbstractController
      * @throws RequestError
      * @throws \JsonException
      * @throws \ReflectionException
+     * @throws InstanceException
      */
     #[CheckPermission(Permission::WRITE)]
     public function newToken(
@@ -40,6 +42,15 @@ class InstanceController extends AbstractController
             }
         }
 
+        $instanceService->setToken($instance);
+        $instanceService->sendRequest(
+            $instance,
+            'core',
+            'middleware',
+            'confirm',
+            ['token' => $instance->getToken()]
+        );
+
         if ($instance->getId() === null) {
             $instanceService->addInstanceUser($instance);
             $url = $instance->getUrl();
@@ -49,8 +60,8 @@ class InstanceController extends AbstractController
             }
         }
 
-        $modelManager->saveWithoutChildren($instanceService->setToken($instance));
+        $modelManager->saveWithoutChildren($instance);
 
-        return $this->returnSuccess($instance);
+        return $this->returnSuccess();
     }
 }

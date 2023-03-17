@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Middleware\Service;
 
+use GibsonOS\Core\Dto\Web\Request;
+use GibsonOS\Core\Dto\Web\Response;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\UserError;
@@ -11,6 +13,9 @@ use GibsonOS\Core\Model\Role\User as RoleUser;
 use GibsonOS\Core\Model\User;
 use GibsonOS\Core\Repository\RoleRepository;
 use GibsonOS\Core\Service\SessionService;
+use GibsonOS\Core\Service\WebService;
+use GibsonOS\Core\Utility\StatusCode;
+use GibsonOS\Module\Middleware\Exception\InstanceException;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Repository\InstanceRepository;
 
@@ -21,6 +26,7 @@ class InstanceService
         private readonly RoleRepository $roleRepository,
         private readonly SessionService $sessionService,
         private readonly ModelManager $modelManager,
+        private readonly WebService $webService,
     ) {
     }
 
@@ -28,6 +34,11 @@ class InstanceService
     {
         try {
             $instance = $this->instanceRepository->getByToken($token);
+
+            if ($instance->getExpireDate() > new \DateTimeImmutable()) {
+                throw new UserError('Token expired');
+            }
+
             $this->sessionService->login($instance->getUser());
 
             return $instance;
@@ -58,6 +69,35 @@ class InstanceService
             ->setToken($this->generateToken())
             ->setExpireDate(new \DateTimeImmutable('+1 month'))
         ;
+    }
+
+    public function sendRequest(
+        Instance $instance,
+        string $module,
+        string $task,
+        string $action,
+        array $parameters = []
+    ): Response {
+        $response = $this->webService->post(
+            (new Request(sprintf(
+                '%s%s/%s/%s',
+                $instance->getUrl(),
+                $module,
+                $task,
+                $action
+            )))
+                ->setParameters($parameters)
+                ->setHeaders([
+                    'X-Requested-With' => 'XMLHttpRequest',
+                    'X-GibsonOs-Secret' => $instance->getSecret(),
+                ])
+        );
+
+        if ($response->getStatusCode() !== StatusCode::OK) {
+            throw new InstanceException($response->getBody()->getContent());
+        }
+
+        return $response;
     }
 
     /**

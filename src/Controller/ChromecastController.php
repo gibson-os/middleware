@@ -9,7 +9,6 @@ use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetMappedModels;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
-use GibsonOS\Core\Dto\Web\Request;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\WebException;
 use GibsonOS\Core\Manager\ModelManager;
@@ -18,14 +17,15 @@ use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Service\Response\Response;
 use GibsonOS\Core\Service\Response\ResponseInterface;
 use GibsonOS\Core\Service\Response\TwigResponse;
-use GibsonOS\Core\Service\WebService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Core\Utility\StatusCode;
 use GibsonOS\Module\Middleware\Attribute\GetInstance;
+use GibsonOS\Module\Middleware\Exception\InstanceException;
 use GibsonOS\Module\Middleware\Model\Chromecast\Error;
 use GibsonOS\Module\Middleware\Model\Chromecast\Session;
 use GibsonOS\Module\Middleware\Model\Chromecast\Session\User;
 use GibsonOS\Module\Middleware\Model\Instance;
+use GibsonOS\Module\Middleware\Service\InstanceService;
 
 class ChromecastController extends AbstractController
 {
@@ -38,25 +38,21 @@ class ChromecastController extends AbstractController
     /**
      * @throws WebException
      * @throws \JsonException
+     * @throws InstanceException
      */
     #[CheckPermission(Permission::READ)]
     public function toSeeList(
-        WebService $webService,
+        InstanceService $instanceService,
         #[GetModel] Session $session,
     ): AjaxResponse {
-        $response = $webService->post(
-            (new Request(sprintf('%sexplorer/middleware/toSeeList', $session->getInstance()->getUrl())))
-                ->setParameters(['sessionId' => $session->getId()])
-                ->setHeaders(['X-Requested-With' => 'XMLHttpRequest'])
+        $response = $instanceService->sendRequest(
+            $session->getInstance(),
+            'explorer',
+            'middleware',
+            'toSeeList',
+            ['sessionId' => $session->getId()],
         );
-
-        $body = $response->getBody()->getContent();
-
-        if ($response->getStatusCode() !== StatusCode::OK) {
-            return $this->returnFailure($body);
-        }
-
-        $body = JsonUtility::decode($body);
+        $body = JsonUtility::decode($response->getBody()->getContent());
 
         return $this->returnSuccess($body['data'] ?? [], $body['total'] ?? 0);
     }
@@ -107,10 +103,11 @@ class ChromecastController extends AbstractController
      * @throws SaveError
      * @throws \JsonException
      * @throws \ReflectionException
+     * @throws InstanceException
      */
     #[CheckPermission(Permission::WRITE)]
     public function savePosition(
-        WebService $webService,
+        InstanceService $instanceService,
         ModelManager $modelManager,
         #[GetModel] Session $session,
         #[GetMappedModels(User::class, ['session_id' => 'sessionId', 'user_id' => 'userId'])] array $users,
@@ -120,45 +117,44 @@ class ChromecastController extends AbstractController
         $session->setUsers($users);
         $modelManager->save($session);
 
-        $response = $webService->post(
-            (new Request(sprintf('%sexplorer/middleware/savePosition', $session->getInstance()->getUrl())))
-                ->setParameters([
-                    'sessionId' => $session->getId(),
-                    'token' => $token,
-                    'position' => (string) $position,
-                ])
-                ->setHeaders(['X-Requested-With' => 'XMLHttpRequest'])
+        $instanceService->sendRequest(
+            $session->getInstance(),
+            'explorer',
+            'middleware',
+            'savePosition',
+            [
+                'sessionId' => $session->getId(),
+                'token' => $token,
+                'position' => (string) $position,
+            ]
         );
-
-        if ($response->getStatusCode() !== StatusCode::OK) {
-            return $this->returnFailure($response->getBody()->getContent());
-        }
 
         return $this->returnSuccess();
     }
 
+    /**
+     * @throws InstanceException
+     * @throws WebException
+     * @throws \JsonException
+     */
     #[CheckPermission(Permission::READ)]
     public function get(
-        WebService $webService,
+        InstanceService $instanceService,
         #[GetModel] Session $session,
         string $token,
     ): AjaxResponse {
-        $response = $webService->post(
-            (new Request(sprintf('%sexplorer/middleware/get', $session->getInstance()->getUrl())))
-                ->setParameters([
-                    'sessionId' => $session->getId(),
-                    'token' => $token,
-                ])
-                ->setHeaders(['X-Requested-With' => 'XMLHttpRequest'])
+        $response = $instanceService->sendRequest(
+            $session->getInstance(),
+            'explorer',
+            'middleware',
+            'get',
+            [
+                'sessionId' => $session->getId(),
+                'token' => $token,
+            ]
         );
 
-        $body = $response->getBody()->getContent();
-
-        if ($response->getStatusCode() !== StatusCode::OK) {
-            return $this->returnFailure($body);
-        }
-
-        return $this->returnSuccess(JsonUtility::decode($body)['data']);
+        return $this->returnSuccess(JsonUtility::decode($response->getBody()->getContent())['data']);
     }
 
     #[CheckPermission(Permission::READ)]
@@ -167,9 +163,13 @@ class ChromecastController extends AbstractController
         return $this->renderTemplate('@middleware/chromecast.html.twig');
     }
 
+    /**
+     * @throws WebException
+     * @throws InstanceException
+     */
     #[CheckPermission(Permission::READ)]
     public function image(
-        WebService $webService,
+        InstanceService $instanceService,
         #[GetModel] Session $session,
         string $token,
         int $width = null,
@@ -188,16 +188,14 @@ class ChromecastController extends AbstractController
             $parameters['height'] = (string) $height;
         }
 
-        $response = $webService->post(
-            (new Request(sprintf('%sexplorer/middleware/image', $session->getInstance()->getUrl())))
-                ->setParameters($parameters)
+        $response = $instanceService->sendRequest(
+            $session->getInstance(),
+            'explorer',
+            'middleware',
+            'image',
+            $parameters,
         );
-
         $body = $response->getBody()->getContent();
-
-        if ($response->getStatusCode() !== StatusCode::OK) {
-            return $this->returnFailure($body);
-        }
 
         return new Response(
             $body,
@@ -215,6 +213,9 @@ class ChromecastController extends AbstractController
         );
     }
 
+    /**
+     * @throws SaveError
+     */
     #[CheckPermission(Permission::WRITE)]
     public function error(
         #[GetMappedModel] Error $error,
