@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Gibson\Test\Module\Middleware\Unit\Service;
+namespace unit\Service;
 
 use GibsonOS\Core\Dto\Web\Body;
 use GibsonOS\Core\Dto\Web\Request;
