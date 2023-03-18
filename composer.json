@@ -20,7 +20,8 @@
     },
     "autoload": {
         "psr-4": {
-            "GibsonOS\\Module\\Middleware\\": "src/"
+            "GibsonOS\\Module\\Middleware\\": "src/",
+            "GibsonOS\\Test\\Module\\Middleware\\Unit\\": "tests/unit/"
         }
     },
     "scripts": {
