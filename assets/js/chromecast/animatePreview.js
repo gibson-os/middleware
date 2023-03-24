@@ -10,6 +10,11 @@ Chromecast.animatePreview = () => {
 
     Chromecast.footerUl.css('display', 'block');
     let firstLi = jQuery('footer li:first');
+    let lastLi = jQuery('footer li:last');
+
+    if (lastLi.offset().top + lastLi.height() <= jQuery(window).height()) {
+        return;
+    }
 
     firstLi.animate({
         marginTop: '-' + firstLi.height() + 'px',
@@ -25,7 +30,11 @@ Chromecast.animatePreview = () => {
         let lastLi = jQuery('footer li:last');
 
         if (lastLi.offset().top <= jQuery(window).height()) {
-            Chromecast.loadList();
+            if (playerManager.getPlayerState() === cast.framework.messages.PlayerState.PAUSED) {
+                Chromecast.loadPlaylist();
+            } else {
+                Chromecast.loadList();
+            }
         }
 
         firstLi.remove();

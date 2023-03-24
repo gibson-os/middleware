@@ -17,11 +17,11 @@ use GibsonOS\Module\Middleware\Exception\InstanceException;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Repository\InstanceRepository;
 use GibsonOS\Module\Middleware\Service\InstanceService;
-use GibsonOS\UnitTest\AbstractTest;
+use GibsonOS\Test\Unit\Core\UnitTest;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 
-class InstanceServiceTest extends AbstractTest
+class InstanceServiceTest extends UnitTest
 {
     private InstanceService $instanceService;
 

@@ -10,10 +10,10 @@ use GibsonOS\Module\Middleware\Attribute\GetInstance;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Repository\InstanceRepository;
 use GibsonOS\Module\Middleware\Service\Attribute\InstanceAttribute;
-use GibsonOS\UnitTest\AbstractTest;
+use GibsonOS\Test\Unit\Core\UnitTest;
 use Prophecy\Prophecy\ObjectProphecy;
 
-class InstanceAttributeTest extends AbstractTest
+class InstanceAttributeTest extends UnitTest
 {
     private InstanceAttribute $instanceAttribute;
 
