@@ -20,7 +20,7 @@ Chromecast.animatePreview = () => {
         }
     };
 
-    if (lastLi.offset().top + lastLi.height() <= jQuery(window).height()) {
+    if (lastLi.length === 0 || lastLi.offset().top + lastLi.height() <= jQuery(window).height()) {
         window.setTimeout(() => {
             loadList(() => {
                 Chromecast.footerUl.empty();

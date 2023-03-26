@@ -39,9 +39,11 @@ class ChromecastController extends AbstractController
      * @throws WebException
      * @throws \JsonException
      * @throws InstanceException
+     * @throws SaveError
      */
     #[CheckPermission(Permission::READ)]
     public function toSeeList(
+        ModelManager $modelManager,
         InstanceService $instanceService,
         #[GetModel] Session $session,
     ): AjaxResponse {
@@ -53,6 +55,7 @@ class ChromecastController extends AbstractController
             ['sessionId' => $session->getId()],
         );
         $body = JsonUtility::decode($response->getBody()->getContent());
+        $modelManager->saveWithoutChildren($session->setLastUpdate(new \DateTimeImmutable()));
 
         return $this->returnSuccess($body['data'] ?? [], $body['total'] ?? 0);
     }
@@ -95,6 +98,7 @@ class ChromecastController extends AbstractController
         #[GetMappedModel(['session_id' => 'sessionId', 'user_id' => 'userId'])] User $user,
     ): AjaxResponse {
         $modelManager->saveWithoutChildren($user);
+        $modelManager->saveWithoutChildren($user->getSession()->setLastUpdate(new \DateTimeImmutable()));
 
         return $this->returnSuccess();
     }
@@ -115,7 +119,6 @@ class ChromecastController extends AbstractController
         int $position,
     ): AjaxResponse {
         $session->setUsers($users);
-        $modelManager->save($session);
 
         $instanceService->sendRequest(
             $session->getInstance(),
@@ -128,6 +131,7 @@ class ChromecastController extends AbstractController
                 'position' => (string) $position,
             ]
         );
+        $modelManager->save($session->setLastUpdate(new \DateTimeImmutable()));
 
         return $this->returnSuccess();
     }
@@ -136,9 +140,11 @@ class ChromecastController extends AbstractController
      * @throws InstanceException
      * @throws WebException
      * @throws \JsonException
+     * @throws SaveError
      */
     #[CheckPermission(Permission::READ)]
     public function get(
+        ModelManager $modelManager,
         InstanceService $instanceService,
         #[GetModel] Session $session,
         string $token,
@@ -153,6 +159,7 @@ class ChromecastController extends AbstractController
                 'token' => $token,
             ]
         );
+        $modelManager->saveWithoutChildren($session->setLastUpdate(new \DateTimeImmutable()));
 
         return $this->returnSuccess(JsonUtility::decode($response->getBody()->getContent())['data']);
     }
@@ -166,9 +173,11 @@ class ChromecastController extends AbstractController
     /**
      * @throws WebException
      * @throws InstanceException
+     * @throws SaveError
      */
     #[CheckPermission(Permission::READ)]
     public function image(
+        ModelManager $modelManager,
         InstanceService $instanceService,
         #[GetModel] Session $session,
         string $token,
@@ -196,6 +205,7 @@ class ChromecastController extends AbstractController
             $parameters,
         );
         $body = $response->getBody()->getContent();
+        $modelManager->saveWithoutChildren($session->setLastUpdate(new \DateTimeImmutable()));
 
         return new Response(
             $body,

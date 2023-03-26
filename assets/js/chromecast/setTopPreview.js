@@ -1,32 +1,45 @@
-Chromecast.setTopPreview = (item, percentPerSecond = 0) => {
+Chromecast.setTopPreview = (item, generateTimestamp = null) => {
     Chromecast.title.html(item.filename);
 
+    if (Chromecast.topPreviewTimeout) {
+        window.clearTimeout(Chromecast.topPreviewTimeout);
+        Chromecast.topPreviewTimeout = null;
+        Chromecast.topPreviewGenerateTimestamp
+    }
+
     if (item.status === 'generate') {
-        Chromecast.timelineBar.css('width', item.convertPercent + '%');
+        let convertPercent = item.convertPercent;
+        let convertTimeRemaining = item.convertTimeRemaining;
+
+        if (generateTimestamp !== null) {
+            const timeDifference = (Date.now() - generateTimestamp) / 1000;
+            const percentPerSecond = (100 - item.convertPercent) / item.convertTimeRemaining;
+
+            convertPercent += percentPerSecond * timeDifference;
+            convertTimeRemaining -= timeDifference;
+        }
+
+        Chromecast.timelineBar.css('width', convertPercent + '%');
         Chromecast.timelineDuration.html(item.duration.toTimeFormat());
-        Chromecast.timelineCurrentPosition.html(item.convertTimeRemaining.toTimeFormat());
-        Chromecast.timelineCurrentPosition.css('width', parseInt(item.convertPercent) + '%');
+        Chromecast.timelineCurrentPosition.html(convertTimeRemaining.toTimeFormat());
+        Chromecast.timelineCurrentPosition.css('width', convertPercent + '%');
         Chromecast.timelinePosition.css('width', '0%');
 
-        window.setTimeout(() => {
-            if (percentPerSecond === 0) {
-                percentPerSecond = (100 - item.convertPercent) / item.convertTimeRemaining;
-            }
+        if (convertTimeRemaining <= 1) {
+            Chromecast.getItem(item.html5MediaToken, (newItem) => {
+                Chromecast.setTopPreview(newItem);
+            });
 
-            if (item.convertTimeRemaining <= 1) {
-                Chromecast.getItem(item.token, (newItem) => {
-                    Chromecast.setTopPreview(newItem, percentPerSecond);
-                });
+            return;
+        }
 
-                return;
-            }
+        if (generateTimestamp === null) {
+            generateTimestamp = Date.now();
+        }
 
-            item.dureration += 1;
-            item.convertPercent += percentPerSecond;
-            item.convertTimeRemaining -= 1;
-
-            Chromecast.setTopPreview(item, percentPerSecond);
-        }, 3000);
+        Chromecast.topPreviewTimeout = window.setTimeout(() => {
+            Chromecast.setTopPreview(item, generateTimestamp);
+        }, 100);
     } else {
         Chromecast.timelineBar.css('width', '100%');
         Chromecast.timelineDuration.html(item.duration.toTimeFormat());

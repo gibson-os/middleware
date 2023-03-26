@@ -15,6 +15,7 @@ Chromecast.init = () => {
     Chromecast.timelinePosition = jQuery('#timeline .bar div.position');
     Chromecast.timelineCurrentPosition = jQuery('#timeline .currentPosition');
     Chromecast.previewItems = [];
+    Chromecast.topPreviewTimeout = null;
 
     const castReceiverManager = cast.framework.CastReceiverContext.getInstance();
     const playerManager = castReceiverManager.getPlayerManager();

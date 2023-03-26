@@ -18,13 +18,7 @@ Chromecast.customMessageListener = () => {
                 senderId: event.senderId
             },
         }).done(() => {
-            if (playerManager.getPlayerState() === cast.framework.messages.PlayerState.PAUSED) {
-                Chromecast.loadPlaylist(() => {
-                    Chromecast.footerUl.empty();
-                    Chromecast.updatePreview();
-                    Chromecast.animatePreview();
-                });
-            } else {
+            if (playerManager.getPlayerState() !== cast.framework.messages.PlayerState.PAUSED) {
                 Chromecast.loadList(() => {
                     Chromecast.footerUl.empty();
                     Chromecast.updatePreview();

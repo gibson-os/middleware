@@ -28,6 +28,9 @@ class Session extends AbstractModel
     #[Column]
     private \DateTimeInterface $started;
 
+    #[Column]
+    private \DateTimeInterface $lastUpdate;
+
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $instanceId;
 
@@ -42,6 +45,7 @@ class Session extends AbstractModel
         parent::__construct($database);
 
         $this->started = new \DateTimeImmutable();
+        $this->lastUpdate = new \DateTimeImmutable();
     }
 
     public function getId(): string
@@ -76,6 +80,18 @@ class Session extends AbstractModel
     public function setStarted(\DateTimeInterface $started): Session
     {
         $this->started = $started;
+
+        return $this;
+    }
+
+    public function getLastUpdate(): \DateTimeInterface
+    {
+        return $this->lastUpdate;
+    }
+
+    public function setLastUpdate(\DateTimeInterface $lastUpdate): Session
+    {
+        $this->lastUpdate = $lastUpdate;
 
         return $this;
     }

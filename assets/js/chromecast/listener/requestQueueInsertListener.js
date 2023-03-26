@@ -8,8 +8,16 @@ Chromecast.requestQueueInsertListener = () => {
                 Chromecast.showMessage(
                     mediaItem.filename + ' hinzugefügt',
                     '/middleware/chromecast/image/id/' + castReceiverManager.getApplicationData().sessionId + '/token/' + mediaItem.html5MediaToken + '/image.jpg'
-                )
+                );
+
+                if (playerManager.getPlayerState() === cast.framework.messages.PlayerState.PAUSED) {
+                    Chromecast.addToPreview(mediaItem);
+                }
             });
         });
+
+        if (playerManager.getPlayerState() === cast.framework.messages.PlayerState.PAUSED) {
+            Chromecast.updatePreview();
+        }
     });
 };
