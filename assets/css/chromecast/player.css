@@ -207,16 +207,18 @@ footer li {
     position: absolute;
     color: #FFF;
     background-color: rgba(64, 64, 64, 0.9);
-    padding: 15px;
+    padding: 5px;
     margin-right: 15px;
     right: 0;
     opacity: 0;
 }
 
 #messageImage {
-    width: 3em;
-    height: 3em;
+    width: 5em;
+    height: 5em;
     display: table-cell;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 #message {

@@ -26,7 +26,7 @@ Chromecast.savePosition = () => {
             users: Chromecast.getConnectedUsers(),
         },
         complete() {
-            setTimeout(() => {
+            window.setTimeout(() => {
                 Chromecast.savePositionRequestActive = false;
             }, 3000);
         }

@@ -7,10 +7,13 @@ use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Module\Middleware\Model\Instance;
 
 /**
  * @method Error   setSession(Session $session)
  * @method Session getSession()
+ * @method Error   setInstance(Instance $instance)
+ * @method Session getInstance()
  */
 #[Table]
 class Error extends AbstractModel
@@ -25,10 +28,16 @@ class Error extends AbstractModel
     private \DateTimeInterface $added;
 
     #[Column(length: 48)]
-    private string $sessionId;
+    private ?string $sessionId;
+
+    #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
+    private int $instanceId;
+
+    #[Constraint(onDelete: Constraint::RULE_SET_NULL)]
+    protected Session $session;
 
     #[Constraint]
-    protected Session $session;
+    protected Instance $instance;
 
     public function __construct(\mysqlDatabase $database = null)
     {
@@ -73,14 +82,26 @@ class Error extends AbstractModel
         return $this;
     }
 
-    public function getSessionId(): string
+    public function getSessionId(): ?string
     {
         return $this->sessionId;
     }
 
-    public function setSessionId(string $sessionId): Error
+    public function setSessionId(?string $sessionId): Error
     {
         $this->sessionId = $sessionId;
+
+        return $this;
+    }
+
+    public function getInstanceId(): int
+    {
+        return $this->instanceId;
+    }
+
+    public function setInstanceId(int $instanceId): Error
+    {
+        $this->instanceId = $instanceId;
 
         return $this;
     }

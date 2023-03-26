@@ -27,8 +27,9 @@ Chromecast.pauseListener = () => {
                     width: mediaWidth + 'px',
                     height: mediaHeight + 'px',
                 }, 3000, () => {
-                    Chromecast.footerUl.empty();
                     Chromecast.loadPlaylist(() => {
+                        Chromecast.footerUl.empty();
+                        Chromecast.updatePreview();
                         Chromecast.animatePreview();
                     });
                 });

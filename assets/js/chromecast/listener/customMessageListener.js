@@ -1,5 +1,6 @@
 Chromecast.customMessageListener = () => {
     const castReceiverManager = cast.framework.CastReceiverContext.getInstance();
+    const playerManager = castReceiverManager.getPlayerManager();
 
     castReceiverManager.addCustomMessageListener('urn:x-cast:net.itronom.gibson', (event) => {
         Chromecast.connectedUsers[event.senderId] = event.data.user;
@@ -17,10 +18,19 @@ Chromecast.customMessageListener = () => {
                 senderId: event.senderId
             },
         }).done(() => {
-            Chromecast.footerUl.empty();
-            Chromecast.loadList(() => {
-                Chromecast.animatePreview();
-            });
+            if (playerManager.getPlayerState() === cast.framework.messages.PlayerState.PAUSED) {
+                Chromecast.loadPlaylist(() => {
+                    Chromecast.footerUl.empty();
+                    Chromecast.updatePreview();
+                    Chromecast.animatePreview();
+                });
+            } else {
+                Chromecast.loadList(() => {
+                    Chromecast.footerUl.empty();
+                    Chromecast.updatePreview();
+                    Chromecast.animatePreview();
+                });
+            }
         });
     });
 };

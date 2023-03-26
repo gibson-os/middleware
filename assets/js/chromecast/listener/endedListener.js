@@ -13,6 +13,7 @@ Chromecast.endedListener = () => {
         Chromecast.timeline.css('width', '75%');
 
         Chromecast.loadList(() => {
+            Chromecast.updatePreview();
             Chromecast.animatePreview();
         });
     });

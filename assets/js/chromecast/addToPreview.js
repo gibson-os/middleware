@@ -18,7 +18,7 @@ Chromecast.addToPreview = (item) => {
         nextFilesString += '+' + item.nextFiles;
     }
 
-    Chromecast.footerUl.append(
+    Chromecast.previewItems.push(
         '<li>' +
             '<div class="previewImage" style="background-image: url(\'/middleware/chromecast/image/id/' + castReceiverManager.getApplicationData().sessionId + '/token/' + item.html5MediaToken + '/image.jpg?width=' + Chromecast.footer.width() + '\');">' +
                 '<div class="previewTitle">' + item.filename + '</div>' +

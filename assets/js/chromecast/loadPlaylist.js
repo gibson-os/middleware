@@ -1,17 +1,16 @@
 Chromecast.loadPlaylist = (callback) => {
     const castReceiverManager = cast.framework.CastReceiverContext.getInstance();
-    const queueManager = castReceiverManager.getQueueManager();
+    const queueManager = castReceiverManager.getPlayerManager().getQueueManager();
     const currentItemIndex = queueManager.getCurrentItemIndex();
     const items = queueManager.getItems();
 
     const addToPreview = (item, i) => {
         Chromecast.addToPreview(item);
+        i++;
 
         if (i < items.length) {
-            i++;
-
             Chromecast.getItem(items[i].media.contentId, (nextItem) => {
-                addToPreview(nextItem.media.contentId, i);
+                addToPreview(nextItem, i);
             });
         } else if (callback) {
             callback();

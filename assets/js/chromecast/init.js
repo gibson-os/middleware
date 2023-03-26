@@ -14,6 +14,7 @@ Chromecast.init = () => {
     Chromecast.timelineDuration = jQuery('#timeline .duration');
     Chromecast.timelinePosition = jQuery('#timeline .bar div.position');
     Chromecast.timelineCurrentPosition = jQuery('#timeline .currentPosition');
+    Chromecast.previewItems = [];
 
     const castReceiverManager = cast.framework.CastReceiverContext.getInstance();
     const playerManager = castReceiverManager.getPlayerManager();
@@ -25,6 +26,7 @@ Chromecast.init = () => {
     Chromecast.timeUpdateListener();
     Chromecast.endedListener();
     Chromecast.errorListener();
+    Chromecast.requestQueueInsertListener();
 
     playerManager.setMediaElement(Chromecast.media.get(0));
     castReceiverManager.start();
