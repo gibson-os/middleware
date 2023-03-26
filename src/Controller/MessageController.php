@@ -17,6 +17,7 @@ use GibsonOS\Module\Middleware\Exception\FcmException;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Model\Message;
 use GibsonOS\Module\Middleware\Repository\MessageRepository;
+use JsonException;
 
 class MessageController extends AbstractController
 {
@@ -24,7 +25,7 @@ class MessageController extends AbstractController
      * @throws SaveError
      * @throws WebException
      * @throws FcmException
-     * @throws \JsonException
+     * @throws JsonException
      */
     #[CheckPermission(Permission::WRITE)]
     public function push(

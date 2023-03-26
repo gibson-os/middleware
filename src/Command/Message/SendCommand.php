@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Middleware\Command\Message;
 
+use DateTimeImmutable;
 use GibsonOS\Core\Attribute\Install\Cronjob;
 use GibsonOS\Core\Command\AbstractCommand;
 use GibsonOS\Core\Exception\Flock\LockError;
@@ -15,6 +16,7 @@ use GibsonOS\Core\Utility\StatusCode;
 use GibsonOS\Module\Middleware\Exception\FcmException;
 use GibsonOS\Module\Middleware\Repository\MessageRepository;
 use GibsonOS\Module\Middleware\Service\FcmService;
+use JsonException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -43,7 +45,7 @@ class SendCommand extends AbstractCommand
      * @throws SaveError
      * @throws SelectError
      * @throws WebException
-     * @throws \JsonException
+     * @throws JsonException
      * @throws FcmException
      */
     protected function run(): int
@@ -56,8 +58,8 @@ class SendCommand extends AbstractCommand
 
         foreach ($this->messageRepository->getUnsentMessages() as $unsentMessage) {
             if (
-                $this->messageRepository->countSentMessagesSince(new \DateTimeImmutable('-1 second')) >= self::MAX_PER_SECOND ||
-                $this->messageRepository->countSentMessagesSince(new \DateTimeImmutable('-1 hour')) >= self::MAX_PER_HOUR
+                $this->messageRepository->countSentMessagesSince(new DateTimeImmutable('-1 second')) >= self::MAX_PER_SECOND ||
+                $this->messageRepository->countSentMessagesSince(new DateTimeImmutable('-1 hour')) >= self::MAX_PER_HOUR
             ) {
                 return self::ERROR;
             }
@@ -74,7 +76,7 @@ class SendCommand extends AbstractCommand
 
             $this->modelManager->saveWithoutChildren(
                 $unsentMessage
-                    ->setSent(new \DateTimeImmutable())
+                    ->setSent(new DateTimeImmutable())
                     ->setToken(null)
                     ->setTitle(null)
                     ->setBody(null)

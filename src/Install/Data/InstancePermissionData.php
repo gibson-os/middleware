@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Middleware\Install\Data;
 
+use Generator;
 use GibsonOS\Core\Dto\Install\Success;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
@@ -13,6 +14,8 @@ use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Repository\User\PermissionRepository;
 use GibsonOS\Core\Service\InstallService;
 use GibsonOS\Core\Service\PriorityInterface;
+use JsonException;
+use ReflectionException;
 
 class InstancePermissionData extends AbstractInstall implements PriorityInterface, SingleInstallInterface
 {
@@ -25,10 +28,10 @@ class InstancePermissionData extends AbstractInstall implements PriorityInterfac
 
     /**
      * @throws SaveError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      */
-    public function install(string $module): \Generator
+    public function install(string $module): Generator
     {
         try {
             $this->permissionRepository->getByModuleTaskAndAction('middleware', 'instance', 'newToken');

@@ -12,6 +12,7 @@ use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Middleware\Exception\FcmException;
 use GibsonOS\Module\Middleware\Model\Message;
 use Google\Auth\CredentialsLoader;
+use JsonException;
 use Psr\Log\LoggerInterface;
 
 class FcmService
@@ -32,7 +33,7 @@ class FcmService
     /**
      * @throws WebException
      * @throws FcmException
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function pushMessage(Message $message): FcmService
     {

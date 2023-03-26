@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Middleware\Model;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
@@ -11,13 +13,16 @@ use GibsonOS\Core\Enum\Middleware\Message\Type;
 use GibsonOS\Core\Enum\Middleware\Message\Vibrate;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Utility\JsonUtility;
+use JsonException;
+use JsonSerializable;
+use mysqlDatabase;
 
 /**
  * @method Message  setInstance(Instance $instance)
  * @method Instance getInstance()
  */
 #[Table]
-class Message extends AbstractModel implements \JsonSerializable
+class Message extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
@@ -56,10 +61,10 @@ class Message extends AbstractModel implements \JsonSerializable
     private ?Vibrate $vibrate = null;
 
     #[Column]
-    private \DateTimeInterface $added;
+    private DateTimeInterface $added;
 
     #[Column]
-    private ?\DateTimeInterface $sent = null;
+    private ?DateTimeInterface $sent = null;
 
     #[Column]
     private bool $notFound = false;
@@ -70,11 +75,11 @@ class Message extends AbstractModel implements \JsonSerializable
     #[Constraint]
     protected Instance $instance;
 
-    public function __construct(\mysqlDatabase $database = null)
+    public function __construct(mysqlDatabase $database = null)
     {
         parent::__construct($database);
 
-        $this->added = new \DateTimeImmutable();
+        $this->added = new DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -221,12 +226,12 @@ class Message extends AbstractModel implements \JsonSerializable
         return $this;
     }
 
-    public function getAdded(): \DateTimeInterface
+    public function getAdded(): DateTimeInterface
     {
         return $this->added;
     }
 
-    public function setAdded(\DateTimeInterface $added): Message
+    public function setAdded(DateTimeInterface $added): Message
     {
         $this->added = $added;
 
@@ -245,12 +250,12 @@ class Message extends AbstractModel implements \JsonSerializable
         return $this;
     }
 
-    public function getSent(): ?\DateTimeInterface
+    public function getSent(): ?DateTimeInterface
     {
         return $this->sent;
     }
 
-    public function setSent(?\DateTimeInterface $sent): Message
+    public function setSent(?DateTimeInterface $sent): Message
     {
         $this->sent = $sent;
 
@@ -270,7 +275,7 @@ class Message extends AbstractModel implements \JsonSerializable
     }
 
     /**
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function jsonSerialize(): array
     {

@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Middleware\Model\Chromecast;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
@@ -10,6 +12,7 @@ use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Middleware\Model\Chromecast\Session\User;
 use GibsonOS\Module\Middleware\Model\Instance;
+use mysqlDatabase;
 
 /**
  * @method Instance getInstance()
@@ -26,10 +29,11 @@ class Session extends AbstractModel
     private string $id;
 
     #[Column]
-    private \DateTimeInterface $started;
+    private DateTimeInterface $started;
 
     #[Column]
-    private \DateTimeInterface $lastUpdate;
+    #[Key]
+    private DateTimeInterface $lastUpdate;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     private int $instanceId;
@@ -40,12 +44,12 @@ class Session extends AbstractModel
     #[Constraint('session', User::class)]
     protected array $users;
 
-    public function __construct(\mysqlDatabase $database = null)
+    public function __construct(mysqlDatabase $database = null)
     {
         parent::__construct($database);
 
-        $this->started = new \DateTimeImmutable();
-        $this->lastUpdate = new \DateTimeImmutable();
+        $this->started = new DateTimeImmutable();
+        $this->lastUpdate = new DateTimeImmutable();
     }
 
     public function getId(): string
@@ -72,24 +76,24 @@ class Session extends AbstractModel
         return $this;
     }
 
-    public function getStarted(): \DateTimeInterface
+    public function getStarted(): DateTimeInterface
     {
         return $this->started;
     }
 
-    public function setStarted(\DateTimeInterface $started): Session
+    public function setStarted(DateTimeInterface $started): Session
     {
         $this->started = $started;
 
         return $this;
     }
 
-    public function getLastUpdate(): \DateTimeInterface
+    public function getLastUpdate(): DateTimeInterface
     {
         return $this->lastUpdate;
     }
 
-    public function setLastUpdate(\DateTimeInterface $lastUpdate): Session
+    public function setLastUpdate(DateTimeInterface $lastUpdate): Session
     {
         $this->lastUpdate = $lastUpdate;
 

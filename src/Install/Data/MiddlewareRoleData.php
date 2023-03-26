@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Middleware\Install\Data;
 
+use Generator;
 use GibsonOS\Core\Dto\Install\Success;
 use GibsonOS\Core\Install\AbstractInstall;
 use GibsonOS\Core\Install\SingleInstallInterface;
@@ -13,7 +14,7 @@ use GibsonOS\Core\Service\PriorityInterface;
 
 class MiddlewareRoleData extends AbstractInstall implements PriorityInterface, SingleInstallInterface
 {
-    public function install(string $module): \Generator
+    public function install(string $module): Generator
     {
         $permission = (new Role\Permission())
             ->setModule('middleware')

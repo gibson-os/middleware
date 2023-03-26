@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Middleware\Repository;
 
+use DateTimeInterface;
 use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
@@ -38,7 +39,7 @@ class MessageRepository extends AbstractRepository
         }
     }
 
-    public function countSentMessagesSince(\DateTimeInterface $dateTime): int
+    public function countSentMessagesSince(DateTimeInterface $dateTime): int
     {
         $table = $this->getTable($this->messageTableName)
             ->setWhere('`sent`>=?')

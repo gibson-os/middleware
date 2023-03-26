@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Middleware\Service;
 
+use DateTimeImmutable;
+use Exception;
 use GibsonOS\Core\Dto\Web\Request;
 use GibsonOS\Core\Dto\Web\Response;
 use GibsonOS\Core\Exception\Model\SaveError;
@@ -35,7 +37,7 @@ class InstanceService
         try {
             $instance = $this->instanceRepository->getByToken($token);
 
-            if (new \DateTimeImmutable() > $instance->getExpireDate()) {
+            if (new DateTimeImmutable() > $instance->getExpireDate()) {
                 throw new UserError('Token expired');
             }
 
@@ -67,7 +69,7 @@ class InstanceService
     {
         return $instance
             ->setToken($this->generateToken())
-            ->setExpireDate(new \DateTimeImmutable('+1 month'))
+            ->setExpireDate(new DateTimeImmutable('+1 month'))
         ;
     }
 
@@ -101,7 +103,7 @@ class InstanceService
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private function generateToken(): string
     {

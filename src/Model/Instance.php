@@ -3,19 +3,21 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Middleware\Model;
 
+use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\User;
+use JsonSerializable;
 
 /**
  * @method Instance setUser(User $user)
  * @method User     getUser()
  */
 #[Table]
-class Instance extends AbstractModel implements \JsonSerializable
+class Instance extends AbstractModel implements JsonSerializable
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
@@ -32,7 +34,7 @@ class Instance extends AbstractModel implements \JsonSerializable
     private string $secret;
 
     #[Column]
-    private \DateTimeInterface $expireDate;
+    private DateTimeInterface $expireDate;
 
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED])]
     #[Key(true)]
@@ -77,12 +79,12 @@ class Instance extends AbstractModel implements \JsonSerializable
         return $this;
     }
 
-    public function getExpireDate(): \DateTimeInterface
+    public function getExpireDate(): DateTimeInterface
     {
         return $this->expireDate;
     }
 
-    public function setExpireDate(\DateTimeInterface $expireDate): Instance
+    public function setExpireDate(DateTimeInterface $expireDate): Instance
     {
         $this->expireDate = $expireDate;
 

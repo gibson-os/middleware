@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Middleware\Install;
 
+use Generator;
 use GibsonOS\Core\Dto\Install\Configuration;
 use GibsonOS\Core\Install\AbstractInstall;
 use GibsonOS\Core\Install\SingleInstallInterface;
@@ -11,7 +12,7 @@ use GibsonOS\Core\Service\PriorityInterface;
 
 class GoogleInstall extends AbstractInstall implements PriorityInterface, SingleInstallInterface
 {
-    public function install(string $module): \Generator
+    public function install(string $module): Generator
     {
         yield $googleApplicationCredentialsInput = $this->getEnvInput(
             'GOOGLE_APPLICATION_CREDENTIALS',

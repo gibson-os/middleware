@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Middleware\Command\Chromecast;
 
+use DateTimeImmutable;
 use GibsonOS\Core\Attribute\Install\Cronjob;
 use GibsonOS\Core\Command\AbstractCommand;
 use GibsonOS\Core\Exception\Model\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Module\Middleware\Repository\SessionRepository;
+use JsonException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -28,11 +30,11 @@ class RemoveOldSessionsCommand extends AbstractCommand
     /**
      * @throws DeleteError
      * @throws SelectError
-     * @throws \JsonException
+     * @throws JsonException
      */
     protected function run(): int
     {
-        foreach ($this->sessionRepository->getLastUpdateOlderThan(new \DateTimeImmutable('-1 hour')) as $session) {
+        foreach ($this->sessionRepository->getLastUpdateOlderThan(new DateTimeImmutable('-1 hour')) as $session) {
             $this->logger->info(sprintf('Remove session "%s"', $session->getId()));
             $this->modelManager->delete($session);
         }

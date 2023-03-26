@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Middleware\Controller;
 
+use DateTimeImmutable;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetEnv;
 use GibsonOS\Core\Attribute\GetMappedModel;
@@ -26,6 +27,8 @@ use GibsonOS\Module\Middleware\Model\Chromecast\Session;
 use GibsonOS\Module\Middleware\Model\Chromecast\Session\User;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Service\InstanceService;
+use JsonException;
+use ReflectionException;
 
 class ChromecastController extends AbstractController
 {
@@ -37,7 +40,7 @@ class ChromecastController extends AbstractController
 
     /**
      * @throws WebException
-     * @throws \JsonException
+     * @throws JsonException
      * @throws InstanceException
      * @throws SaveError
      */
@@ -55,7 +58,7 @@ class ChromecastController extends AbstractController
             ['sessionId' => $session->getId()],
         );
         $body = JsonUtility::decode($response->getBody()->getContent());
-        $modelManager->saveWithoutChildren($session->setLastUpdate(new \DateTimeImmutable()));
+        $modelManager->saveWithoutChildren($session->setLastUpdate(new DateTimeImmutable()));
 
         return $this->returnSuccess($body['data'] ?? [], $body['total'] ?? 0);
     }
@@ -98,15 +101,15 @@ class ChromecastController extends AbstractController
         #[GetMappedModel(['session_id' => 'sessionId', 'user_id' => 'userId'])] User $user,
     ): AjaxResponse {
         $modelManager->saveWithoutChildren($user);
-        $modelManager->saveWithoutChildren($user->getSession()->setLastUpdate(new \DateTimeImmutable()));
+        $modelManager->saveWithoutChildren($user->getSession()->setLastUpdate(new DateTimeImmutable()));
 
         return $this->returnSuccess();
     }
 
     /**
      * @throws SaveError
-     * @throws \JsonException
-     * @throws \ReflectionException
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws InstanceException
      */
     #[CheckPermission(Permission::WRITE)]
@@ -131,7 +134,7 @@ class ChromecastController extends AbstractController
                 'position' => (string) $position,
             ]
         );
-        $modelManager->save($session->setLastUpdate(new \DateTimeImmutable()));
+        $modelManager->save($session->setLastUpdate(new DateTimeImmutable()));
 
         return $this->returnSuccess();
     }
@@ -139,7 +142,7 @@ class ChromecastController extends AbstractController
     /**
      * @throws InstanceException
      * @throws WebException
-     * @throws \JsonException
+     * @throws JsonException
      * @throws SaveError
      */
     #[CheckPermission(Permission::READ)]
@@ -159,7 +162,7 @@ class ChromecastController extends AbstractController
                 'token' => $token,
             ]
         );
-        $modelManager->saveWithoutChildren($session->setLastUpdate(new \DateTimeImmutable()));
+        $modelManager->saveWithoutChildren($session->setLastUpdate(new DateTimeImmutable()));
 
         return $this->returnSuccess(JsonUtility::decode($response->getBody()->getContent())['data']);
     }
@@ -205,7 +208,7 @@ class ChromecastController extends AbstractController
             $parameters,
         );
         $body = $response->getBody()->getContent();
-        $modelManager->saveWithoutChildren($session->setLastUpdate(new \DateTimeImmutable()));
+        $modelManager->saveWithoutChildren($session->setLastUpdate(new DateTimeImmutable()));
 
         return new Response(
             $body,

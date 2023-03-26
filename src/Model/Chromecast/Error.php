@@ -3,11 +3,14 @@ declare(strict_types=1);
 
 namespace GibsonOS\Module\Middleware\Model\Chromecast;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Module\Middleware\Model\Instance;
+use mysqlDatabase;
 
 /**
  * @method Error   setSession(Session $session)
@@ -25,7 +28,7 @@ class Error extends AbstractModel
     private string $message;
 
     #[Column]
-    private \DateTimeInterface $added;
+    private DateTimeInterface $added;
 
     #[Column(length: 48)]
     private ?string $sessionId;
@@ -39,11 +42,11 @@ class Error extends AbstractModel
     #[Constraint]
     protected Instance $instance;
 
-    public function __construct(\mysqlDatabase $database = null)
+    public function __construct(mysqlDatabase $database = null)
     {
         parent::__construct($database);
 
-        $this->added = new \DateTimeImmutable();
+        $this->added = new DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -70,12 +73,12 @@ class Error extends AbstractModel
         return $this;
     }
 
-    public function getAdded(): \DateTimeInterface
+    public function getAdded(): DateTimeInterface
     {
         return $this->added;
     }
 
-    public function setAdded(\DateTimeInterface $added): Error
+    public function setAdded(DateTimeInterface $added): Error
     {
         $this->added = $added;
 
