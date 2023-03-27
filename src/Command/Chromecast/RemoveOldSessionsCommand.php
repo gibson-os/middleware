@@ -34,7 +34,7 @@ class RemoveOldSessionsCommand extends AbstractCommand
      */
     protected function run(): int
     {
-        foreach ($this->sessionRepository->getLastUpdateOlderThan(new DateTimeImmutable('-1 hour')) as $session) {
+        foreach ($this->sessionRepository->getLastUpdateOlderThan(new DateTimeImmutable('-1 day')) as $session) {
             $this->logger->info(sprintf('Remove session "%s"', $session->getId()));
             $this->modelManager->delete($session);
         }

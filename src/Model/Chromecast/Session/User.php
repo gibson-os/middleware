@@ -28,7 +28,7 @@ class User extends AbstractModel
     #[Column(length: 48)]
     private string $sessionId;
 
-    #[Column(length: 64)]
+    #[Column(length: 128)]
     private string $senderId;
 
     #[Column]

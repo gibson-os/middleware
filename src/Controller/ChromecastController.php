@@ -11,6 +11,7 @@ use GibsonOS\Core\Attribute\GetMappedModels;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Exception\Model\SaveError;
+use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\WebException;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\User\Permission;
@@ -26,6 +27,7 @@ use GibsonOS\Module\Middleware\Model\Chromecast\Error;
 use GibsonOS\Module\Middleware\Model\Chromecast\Session;
 use GibsonOS\Module\Middleware\Model\Chromecast\Session\User;
 use GibsonOS\Module\Middleware\Model\Instance;
+use GibsonOS\Module\Middleware\Repository\Session\UserRepository;
 use GibsonOS\Module\Middleware\Service\InstanceService;
 use JsonException;
 use ReflectionException;
@@ -111,18 +113,23 @@ class ChromecastController extends AbstractController
      * @throws JsonException
      * @throws ReflectionException
      * @throws InstanceException
+     * @throws SelectError
      */
     #[CheckPermission(Permission::WRITE)]
     public function savePosition(
         InstanceService $instanceService,
         ModelManager $modelManager,
+        UserRepository $userRepository,
         #[GetModel] Session $session,
         #[GetMappedModels(User::class, ['session_id' => 'sessionId', 'user_id' => 'userId'])] array $users,
         string $token,
         int $position,
     ): AjaxResponse {
-        $session->setUsers($users);
+        if (count($users) === 0) {
+            $users = [$userRepository->getFirst($session)];
+        }
 
+        $modelManager->save($session->setUsers($users));
         $instanceService->sendRequest(
             $session->getInstance(),
             'explorer',
@@ -134,7 +141,7 @@ class ChromecastController extends AbstractController
                 'position' => (string) $position,
             ]
         );
-        $modelManager->save($session->setLastUpdate(new DateTimeImmutable()));
+        $modelManager->saveWithoutChildren($session->setLastUpdate(new DateTimeImmutable()));
 
         return $this->returnSuccess();
     }
