@@ -9,7 +9,7 @@ use GibsonOS\Core\Command\AbstractCommand;
 use GibsonOS\Core\Exception\Model\DeleteError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Manager\ModelManager;
-use GibsonOS\Module\Middleware\Repository\SessionRepository;
+use GibsonOS\Module\Middleware\Repository\Chromecast\SessionRepository;
 use JsonException;
 use Psr\Log\LoggerInterface;
 

@@ -21,6 +21,7 @@ class InstanceRepositoryTest extends Unit
     protected function _before()
     {
         $this->mysqlDatabase = $this->prophesize(mysqlDatabase::class);
+        mysqlRegistry::getInstance()->reset();
         mysqlRegistry::getInstance()->set('database', $this->mysqlDatabase->reveal());
 
         $this->instanceRepository = new InstanceRepository();

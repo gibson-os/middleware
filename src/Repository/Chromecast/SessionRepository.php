@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Middleware\Repository;
+namespace GibsonOS\Module\Middleware\Repository\Chromecast;
 
 use DateTimeInterface;
 use GibsonOS\Core\Exception\Repository\SelectError;

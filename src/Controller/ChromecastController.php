@@ -27,7 +27,7 @@ use GibsonOS\Module\Middleware\Model\Chromecast\Error;
 use GibsonOS\Module\Middleware\Model\Chromecast\Session;
 use GibsonOS\Module\Middleware\Model\Chromecast\Session\User;
 use GibsonOS\Module\Middleware\Model\Instance;
-use GibsonOS\Module\Middleware\Repository\Session\UserRepository;
+use GibsonOS\Module\Middleware\Repository\Chromecast\Session\UserRepository;
 use GibsonOS\Module\Middleware\Service\InstanceService;
 use JsonException;
 use ReflectionException;

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Module\Middleware\Repository\Session;
+namespace GibsonOS\Module\Middleware\Repository\Chromecast\Session;
 
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
