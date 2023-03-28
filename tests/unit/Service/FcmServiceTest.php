@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace unit\Service;
+namespace GibsonOS\Test\Unit\Middleware\Service;
 
 use Codeception\Test\Unit;
 use GibsonOS\Core\Dto\Web\Body;

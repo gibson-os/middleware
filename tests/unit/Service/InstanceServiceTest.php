@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Test\Unit\Middleware;
+namespace GibsonOS\Test\Unit\Middleware\Service;
 
 use Codeception\Test\Unit;
 use DateTimeImmutable;

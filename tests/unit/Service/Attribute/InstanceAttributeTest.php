@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Test\Unit\Middleware\Attribute;
+namespace GibsonOS\Test\Unit\Middleware\Service\Attribute;
 
 use Codeception\Test\Unit;
 use GibsonOS\Core\Attribute\AttributeInterface;
