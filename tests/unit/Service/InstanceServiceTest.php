@@ -1,28 +1,36 @@
 <?php
 declare(strict_types=1);
 
-namespace unit\Service;
+namespace GibsonOS\Test\Unit\Middleware;
 
+use Codeception\Test\Unit;
+use DateTimeImmutable;
 use GibsonOS\Core\Dto\Web\Body;
 use GibsonOS\Core\Dto\Web\Request;
 use GibsonOS\Core\Dto\Web\Response;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\UserError;
+use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\Role;
 use GibsonOS\Core\Model\User;
 use GibsonOS\Core\Repository\RoleRepository;
+use GibsonOS\Core\Service\SessionService;
 use GibsonOS\Core\Service\WebService;
 use GibsonOS\Core\Utility\StatusCode;
 use GibsonOS\Module\Middleware\Exception\InstanceException;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Repository\InstanceRepository;
 use GibsonOS\Module\Middleware\Service\InstanceService;
-use GibsonOS\Test\Unit\Core\UnitTest;
+use mysqlDatabase;
+use mysqlRegistry;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 
-class InstanceServiceTest extends UnitTest
+class InstanceServiceTest extends Unit
 {
+    use ProphecyTrait;
+
     private InstanceService $instanceService;
 
     private ObjectProphecy|WebService $webService;
@@ -31,23 +39,35 @@ class InstanceServiceTest extends UnitTest
 
     private ObjectProphecy|RoleRepository $roleRepository;
 
+    private ObjectProphecy|SessionService $sessionService;
+
+    private ObjectProphecy|ModelManager $modelManager;
+
+    private ObjectProphecy|mysqlDatabase $mysqlDatabase;
+
     protected function _before()
     {
         $this->webService = $this->prophesize(WebService::class);
-        $this->serviceManager->setService(WebService::class, $this->webService->reveal());
         $this->instanceRepository = $this->prophesize(InstanceRepository::class);
-        $this->serviceManager->setService(InstanceRepository::class, $this->instanceRepository->reveal());
         $this->roleRepository = $this->prophesize(RoleRepository::class);
-        $this->serviceManager->setService(RoleRepository::class, $this->roleRepository->reveal());
+        $this->sessionService = $this->prophesize(SessionService::class);
+        $this->modelManager = $this->prophesize(ModelManager::class);
+        mysqlRegistry::getInstance()->set('database', $this->prophesize(mysqlDatabase::class)->reveal());
 
-        $this->instanceService = $this->serviceManager->get(InstanceService::class);
+        $this->instanceService = new InstanceService(
+            $this->instanceRepository->reveal(),
+            $this->roleRepository->reveal(),
+            $this->sessionService->reveal(),
+            $this->modelManager->reveal(),
+            $this->webService->reveal()
+        );
     }
 
     public function testTokenLogin(): void
     {
         $user = new User();
         $instance = (new Instance())
-            ->setExpireDate(new \DateTimeImmutable('+1 second'))
+            ->setExpireDate(new DateTimeImmutable('+1 second'))
             ->setUser($user)
         ;
         $this->instanceRepository->getByToken('galaxy')
@@ -65,7 +85,7 @@ class InstanceServiceTest extends UnitTest
     {
         $user = new User();
         $instance = (new Instance())
-            ->setExpireDate(new \DateTimeImmutable('-1 second'))
+            ->setExpireDate(new DateTimeImmutable('-1 second'))
             ->setUser($user)
         ;
         $this->instanceRepository->getByToken('galaxy')
@@ -111,7 +131,7 @@ class InstanceServiceTest extends UnitTest
 
     public function testSetToken(): void
     {
-        $expireDate = new \DateTimeImmutable('-1 minute');
+        $expireDate = new DateTimeImmutable('-1 minute');
         $instance = (new Instance())
             ->setToken('galaxy')
             ->setExpireDate($expireDate)

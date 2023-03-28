@@ -1,35 +1,48 @@
 <?php
 declare(strict_types=1);
 
-namespace unit\Service\Attribute;
+namespace GibsonOS\Test\Unit\Middleware\Attribute;
 
+use Codeception\Test\Unit;
 use GibsonOS\Core\Attribute\AttributeInterface;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\RequestError;
+use GibsonOS\Core\Service\RequestService;
 use GibsonOS\Module\Middleware\Attribute\GetInstance;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Repository\InstanceRepository;
 use GibsonOS\Module\Middleware\Service\Attribute\InstanceAttribute;
-use GibsonOS\Test\Unit\Core\UnitTest;
+use mysqlDatabase;
+use mysqlRegistry;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
+use ReflectionFunction;
 
-class InstanceAttributeTest extends UnitTest
+class InstanceAttributeTest extends Unit
 {
+    use ProphecyTrait;
+
     private InstanceAttribute $instanceAttribute;
 
     private InstanceRepository|ObjectProphecy $instanceRepository;
 
+    private RequestService|ObjectProphecy $requestService;
+
     protected function _before()
     {
         $this->instanceRepository = $this->prophesize(InstanceRepository::class);
-        $this->serviceManager->setService(InstanceRepository::class, $this->instanceRepository->reveal());
+        $this->requestService = $this->prophesize(RequestService::class);
+        mysqlRegistry::getInstance()->set('database', $this->prophesize(mysqlDatabase::class)->reveal());
 
-        $this->instanceAttribute = $this->serviceManager->get(InstanceAttribute::class);
+        $this->instanceAttribute = new InstanceAttribute(
+            $this->requestService->reveal(),
+            $this->instanceRepository->reveal(),
+        );
     }
 
     public function testReplace(): void
     {
-        $reflectionFunction = new \ReflectionFunction(fn (string $galaxy) => null);
+        $reflectionFunction = new ReflectionFunction(fn (string $galaxy) => null);
         $this->requestService->getHeader('X-GibsonOs-Token')
             ->shouldBeCalledOnce()
             ->willReturn('marvin')
@@ -48,7 +61,7 @@ class InstanceAttributeTest extends UnitTest
 
     public function testReplaceTokenNotFound(): void
     {
-        $reflectionFunction = new \ReflectionFunction(fn (string $galaxy) => null);
+        $reflectionFunction = new ReflectionFunction(fn (string $galaxy) => null);
         $this->requestService->getHeader('X-GibsonOs-Token')
             ->shouldBeCalledOnce()
             ->willReturn('marvin')
@@ -66,7 +79,7 @@ class InstanceAttributeTest extends UnitTest
 
     public function testReplaceHeaderNotFound(): void
     {
-        $reflectionFunction = new \ReflectionFunction(fn (string $galaxy) => null);
+        $reflectionFunction = new ReflectionFunction(fn (string $galaxy) => null);
         $this->requestService->getHeader('X-GibsonOs-Token')
             ->shouldBeCalledOnce()
             ->willThrow(RequestError::class)
@@ -80,7 +93,7 @@ class InstanceAttributeTest extends UnitTest
 
     public function testWrongAttribute(): void
     {
-        $reflectionFunction = new \ReflectionFunction(fn (string $galaxy) => null);
+        $reflectionFunction = new ReflectionFunction(fn (string $galaxy) => null);
 
         $this->assertEquals(
             null,
