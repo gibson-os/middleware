@@ -16,8 +16,6 @@ use GibsonOS\Module\Middleware\Exception\InstanceException;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Repository\InstanceRepository;
 use GibsonOS\Module\Middleware\Service\InstanceService;
-use JsonException;
-use ReflectionException;
 
 class InstanceController extends AbstractController
 {
@@ -25,8 +23,6 @@ class InstanceController extends AbstractController
      * @throws SaveError
      * @throws SelectError
      * @throws RequestError
-     * @throws JsonException
-     * @throws ReflectionException
      * @throws InstanceException
      */
     #[CheckPermission(Permission::WRITE)]

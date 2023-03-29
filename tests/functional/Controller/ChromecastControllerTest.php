@@ -33,7 +33,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
 
     public function testGetReceiverAppId(): void
     {
-        $this->checkAjaxResponse(
+        $this->checkSuccessResponse(
             $this->chromecastController->getReceiverAppId('galaxy'),
             'galaxy'
         );
@@ -76,7 +76,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
             ->willReturn($response)
         ;
 
-        $this->checkAjaxResponse(
+        $this->checkSuccessResponse(
             $this->chromecastController->toSeeList(
                 $modelManager,
                 $this->serviceManager->get(InstanceService::class),
@@ -103,10 +103,12 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
             ->setId('marvin')
         ;
 
-        $this->chromecastController->setSession(
-            $modelManager,
-            $session,
-            $instance,
+        $this->checkSuccessResponse(
+            $this->chromecastController->setSession(
+                $modelManager,
+                $session,
+                $instance,
+            )
         );
 
         $this->assertEquals($session->getInstance(), $instance);
@@ -131,7 +133,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         ;
         $modelManager->save($session);
 
-        $this->checkAjaxResponse(
+        $this->checkSuccessResponse(
             $this->chromecastController->getSessionUserIds($session, $instance),
             [42],
         );
@@ -164,12 +166,10 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         ;
         $modelManager->save($session);
 
-        $response = $this->chromecastController->getSessionUserIds($session, $instance2);
-        $content = json_decode($response->getBody(), true);
-        $this->assertFalse($content['success']);
-        $this->assertTrue($content['failure']);
-        $this->assertEquals('Session not found!', $content['msg']);
-        $this->assertEquals(404, $response->getCode());
+        $this->checkErrorResponse(
+            $this->chromecastController->getSessionUserIds($session, $instance2),
+            'Session not found!',
+        );
     }
 
     public function testAddUser(): void
@@ -196,7 +196,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         ;
         $oldLastUpdate = $session->getLastUpdate();
 
-        $this->chromecastController->addUser($modelManager, $user);
+        $this->checkSuccessResponse($this->chromecastController->addUser($modelManager, $user));
 
         $this->assertNotSame($oldLastUpdate, $session->getLastUpdate());
         $savedUser = $this->serviceManager->get(UserRepository::class)->getFirst($session);
@@ -247,14 +247,16 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         ;
         $oldLastUpdate = $session->getLastUpdate();
 
-        $this->chromecastController->savePosition(
-            $this->serviceManager->get(InstanceService::class),
-            $modelManager,
-            $this->serviceManager->get(UserRepository::class),
-            $session,
-            [$user],
-            'galaxy',
-            42,
+        $this->checkSuccessResponse(
+            $this->chromecastController->savePosition(
+                $this->serviceManager->get(InstanceService::class),
+                $modelManager,
+                $this->serviceManager->get(UserRepository::class),
+                $session,
+                [$user],
+                'galaxy',
+                42,
+            )
         );
 
         $this->assertNotSame($oldLastUpdate, $session->getLastUpdate());
@@ -304,14 +306,16 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         ;
         $oldLastUpdate = $session->getLastUpdate();
 
-        $this->chromecastController->savePosition(
-            $this->serviceManager->get(InstanceService::class),
-            $modelManager,
-            $this->serviceManager->get(UserRepository::class),
-            $session,
-            [],
-            'galaxy',
-            42,
+        $this->checkSuccessResponse(
+            $this->chromecastController->savePosition(
+                $this->serviceManager->get(InstanceService::class),
+                $modelManager,
+                $this->serviceManager->get(UserRepository::class),
+                $session,
+                [],
+                'galaxy',
+                42,
+            ),
         );
 
         $this->assertNotSame($oldLastUpdate, $session->getLastUpdate());
@@ -358,7 +362,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         ;
         $oldLastUpdate = $session->getLastUpdate();
 
-        $this->checkAjaxResponse(
+        $this->checkSuccessResponse(
             $this->chromecastController->get(
                 $modelManager,
                 $this->serviceManager->get(InstanceService::class),
@@ -687,7 +691,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
             ->setMessage('no hope')
         ;
 
-        $this->chromecastController->error($modelManager, $error);
+        $this->checkSuccessResponse($this->chromecastController->error($modelManager, $error));
 
         $this->assertEquals($instance->getId(), $error->getInstanceId());
     }

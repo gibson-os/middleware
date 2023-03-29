@@ -63,11 +63,13 @@ class InstanceControllerTest extends MiddlewareFunctionalTest
             ->willReturn('ford')
         ;
 
-        $this->instanceController->newToken(
-            $instance,
-            $this->serviceManager->get(InstanceRepository::class),
-            $this->serviceManager->get(InstanceService::class),
-            $modelManager
+        $this->checkSuccessResponse(
+            $this->instanceController->newToken(
+                $instance,
+                $this->serviceManager->get(InstanceRepository::class),
+                $this->serviceManager->get(InstanceService::class),
+                $modelManager
+            )
         );
 
         $this->assertNotEquals('ford', $instance->getToken());
@@ -102,11 +104,13 @@ class InstanceControllerTest extends MiddlewareFunctionalTest
             ->willReturn('ford')
         ;
 
-        $this->instanceController->newToken(
-            $instance,
-            $this->serviceManager->get(InstanceRepository::class),
-            $this->serviceManager->get(InstanceService::class),
-            $modelManager
+        $this->checkSuccessResponse(
+            $this->instanceController->newToken(
+                $instance,
+                $this->serviceManager->get(InstanceRepository::class),
+                $this->serviceManager->get(InstanceService::class),
+                $modelManager
+            )
         );
 
         $this->assertNotEquals('ford', $instance->getToken());
@@ -130,17 +134,15 @@ class InstanceControllerTest extends MiddlewareFunctionalTest
             ->willReturn('prefect')
         ;
 
-        $response = $this->instanceController->newToken(
-            $instance,
-            $this->serviceManager->get(InstanceRepository::class),
-            $this->serviceManager->get(InstanceService::class),
-            $modelManager
+        $this->checkErrorResponse(
+            $this->instanceController->newToken(
+                $instance,
+                $this->serviceManager->get(InstanceRepository::class),
+                $this->serviceManager->get(InstanceService::class),
+                $modelManager
+            ),
+            'Invalid token',
         );
-
-        $content = json_decode($response->getBody(), true);
-        $this->assertTrue($content['failure']);
-        $this->assertFalse($content['success']);
-        $this->assertEquals('Invalid token', $content['msg']);
         $this->assertEquals('ford', $instance->getToken());
     }
 
@@ -169,17 +171,16 @@ class InstanceControllerTest extends MiddlewareFunctionalTest
             ->willReturn('arthur')
         ;
 
-        $response = $this->instanceController->newToken(
-            $instance,
-            $this->serviceManager->get(InstanceRepository::class),
-            $this->serviceManager->get(InstanceService::class),
-            $modelManager
+        $this->checkErrorResponse(
+            $this->instanceController->newToken(
+                $instance,
+                $this->serviceManager->get(InstanceRepository::class),
+                $this->serviceManager->get(InstanceService::class),
+                $modelManager
+            ),
+            'Invalid token'
         );
 
-        $content = json_decode($response->getBody(), true);
-        $this->assertTrue($content['failure']);
-        $this->assertFalse($content['success']);
-        $this->assertEquals('Invalid token', $content['msg']);
         $this->assertEquals('ford', $instance->getToken());
     }
 
@@ -205,11 +206,13 @@ class InstanceControllerTest extends MiddlewareFunctionalTest
             ->willReturn($response)
         ;
 
-        $this->instanceController->newToken(
-            $instance,
-            $this->serviceManager->get(InstanceRepository::class),
-            $this->serviceManager->get(InstanceService::class),
-            $modelManager
+        $this->checkSuccessResponse(
+            $this->instanceController->newToken(
+                $instance,
+                $this->serviceManager->get(InstanceRepository::class),
+                $this->serviceManager->get(InstanceService::class),
+                $modelManager
+            )
         );
 
         $this->assertEquals('http://arthur.dent/', $instance->getUrl());
