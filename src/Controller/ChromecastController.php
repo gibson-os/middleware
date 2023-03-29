@@ -238,8 +238,8 @@ class ChromecastController extends AbstractController
      */
     #[CheckPermission(Permission::WRITE)]
     public function error(
-        #[GetMappedModel] Error $error,
         ModelManager $modelManager,
+        #[GetMappedModel] Error $error,
     ): AjaxResponse {
         $error->setInstanceId($error->getSession()->getInstanceId());
         $modelManager->saveWithoutChildren($error);
