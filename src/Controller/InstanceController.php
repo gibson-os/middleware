@@ -37,9 +37,13 @@ class InstanceController extends AbstractController
         ModelManager $modelManager,
     ): AjaxResponse {
         if ($instance->getId() !== null) {
-            $tokenInstance = $instanceRepository->getByToken($this->requestService->getHeader('X-GibsonOs-Token'));
+            try {
+                $tokenInstance = $instanceRepository->getByToken($this->requestService->getHeader('X-GibsonOs-Token'));
 
-            if ($instance->getId() !== $tokenInstance->getId()) {
+                if ($instance->getId() !== $tokenInstance->getId()) {
+                    return $this->returnFailure('Invalid token');
+                }
+            } catch (SelectError) {
                 return $this->returnFailure('Invalid token');
             }
         }
