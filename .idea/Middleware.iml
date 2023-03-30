@@ -5,8 +5,8 @@
       <sourceFolder url="file://$MODULE_DIR$/spec" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" packagePrefix="GibsonOS\Module\Middleware\" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/tests/functional" isTestSource="false" packagePrefix="GibsonOS\Test\Functional\Middleware\" />
-      <sourceFolder url="file://$MODULE_DIR$/tests/unit" isTestSource="false" packagePrefix="GibsonOS\Test\Unit\Middleware\" />
+      <sourceFolder url="file://$MODULE_DIR$/tests/functional" isTestSource="true" packagePrefix="GibsonOS\Test\Unit\Middleware\" />
+      <sourceFolder url="file://$MODULE_DIR$/tests/unit" isTestSource="true" packagePrefix="GibsonOS\Test\Unit\Middleware\" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine/lexer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine/instantiator" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine/annotations" />

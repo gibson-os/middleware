@@ -104,4 +104,12 @@ class InstanceAttributeTest extends Unit
             ),
         );
     }
+
+    public function testGetAttributeServiceName(): void
+    {
+        $this->assertEquals(
+            InstanceAttribute::class,
+            (new GetInstance())->getAttributeServiceName(),
+        );
+    }
 }

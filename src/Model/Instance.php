@@ -10,14 +10,13 @@ use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Model\User;
-use JsonSerializable;
 
 /**
  * @method Instance setUser(User $user)
  * @method User     getUser()
  */
 #[Table]
-class Instance extends AbstractModel implements JsonSerializable
+class Instance extends AbstractModel
 {
     #[Column(attributes: [Column::ATTRIBUTE_UNSIGNED], autoIncrement: true)]
     private ?int $id = null;
@@ -113,13 +112,5 @@ class Instance extends AbstractModel implements JsonSerializable
         $this->secret = $secret;
 
         return $this;
-    }
-
-    public function jsonSerialize(): array
-    {
-        return [
-            'url' => $this->url,
-            'token' => $this->token,
-        ];
     }
 }
