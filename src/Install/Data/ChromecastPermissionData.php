@@ -27,9 +27,9 @@ class ChromecastPermissionData extends AbstractInstall implements PriorityInterf
     }
 
     /**
-     * @throws SaveError
      * @throws JsonException
      * @throws ReflectionException
+     * @throws SaveError
      */
     public function install(string $module): Generator
     {
@@ -44,6 +44,11 @@ class ChromecastPermissionData extends AbstractInstall implements PriorityInterf
         yield new Success('Set chromecast permission for middleware!');
     }
 
+    /**
+     * @throws SaveError
+     * @throws JsonException
+     * @throws ReflectionException
+     */
     private function setPermission(string $action, int $permission): void
     {
         try {
