@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use GibsonOS\Core\Dto\Web\Body;
 use GibsonOS\Core\Dto\Web\Request;
 use GibsonOS\Core\Dto\Web\Response;
+use GibsonOS\Core\Enum\HttpStatusCode;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\UserError;
 use GibsonOS\Core\Manager\ModelManager;
@@ -16,7 +17,6 @@ use GibsonOS\Core\Model\User;
 use GibsonOS\Core\Repository\RoleRepository;
 use GibsonOS\Core\Service\SessionService;
 use GibsonOS\Core\Service\WebService;
-use GibsonOS\Core\Utility\StatusCode;
 use GibsonOS\Module\Middleware\Exception\InstanceException;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Repository\InstanceRepository;
@@ -43,9 +43,7 @@ class InstanceServiceTest extends Unit
 
     private ObjectProphecy|ModelManager $modelManager;
 
-    private ObjectProphecy|mysqlDatabase $mysqlDatabase;
-
-    protected function _before()
+    protected function _before(): void
     {
         $this->webService = $this->prophesize(WebService::class);
         $this->instanceRepository = $this->prophesize(InstanceRepository::class);
@@ -59,7 +57,7 @@ class InstanceServiceTest extends Unit
             $this->roleRepository->reveal(),
             $this->sessionService->reveal(),
             $this->modelManager->reveal(),
-            $this->webService->reveal()
+            $this->webService->reveal(),
         );
     }
 
@@ -158,7 +156,7 @@ class InstanceServiceTest extends Unit
         ;
         $response = new Response(
             $request,
-            StatusCode::OK,
+            HttpStatusCode::OK,
             [],
             new Body(),
             '',
@@ -195,7 +193,7 @@ class InstanceServiceTest extends Unit
         ;
         $response = new Response(
             $request,
-            StatusCode::FORBIDDEN,
+            HttpStatusCode::FORBIDDEN,
             [],
             (new Body())->setContent('trilian', 7),
             '',

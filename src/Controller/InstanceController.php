@@ -6,11 +6,11 @@ namespace GibsonOS\Module\Middleware\Controller;
 use GibsonOS\Core\Attribute\CheckPermission;
 use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Controller\AbstractController;
+use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\RequestError;
 use GibsonOS\Core\Manager\ModelManager;
-use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Module\Middleware\Exception\InstanceException;
 use GibsonOS\Module\Middleware\Model\Instance;
@@ -25,8 +25,8 @@ class InstanceController extends AbstractController
      * @throws RequestError
      * @throws InstanceException
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function newToken(
+    #[CheckPermission([Permission::WRITE])]
+    public function postNewToken(
         #[GetMappedModel(['url' => 'url'])] Instance $instance,
         InstanceRepository $instanceRepository,
         InstanceService $instanceService,

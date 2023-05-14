@@ -7,12 +7,12 @@ use DateTimeImmutable;
 use GibsonOS\Core\Attribute\Command\Lock;
 use GibsonOS\Core\Attribute\Install\Cronjob;
 use GibsonOS\Core\Command\AbstractCommand;
+use GibsonOS\Core\Enum\HttpStatusCode;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\WebException;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\DateTimeService;
-use GibsonOS\Core\Utility\StatusCode;
 use GibsonOS\Module\Middleware\Exception\FcmException;
 use GibsonOS\Module\Middleware\Repository\MessageRepository;
 use GibsonOS\Module\Middleware\Service\FcmService;
@@ -60,7 +60,7 @@ class SendCommand extends AbstractCommand
             try {
                 $this->fcmService->pushMessage($unsentMessage);
             } catch (FcmException $exception) {
-                if ($exception->getCode() !== StatusCode::NOT_FOUND) {
+                if ($exception->getCode() !== HttpStatusCode::NOT_FOUND) {
                     throw $exception;
                 }
 

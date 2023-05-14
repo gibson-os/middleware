@@ -7,6 +7,8 @@ use DateTimeImmutable;
 use Exception;
 use GibsonOS\Core\Dto\Web\Request;
 use GibsonOS\Core\Dto\Web\Response;
+use GibsonOS\Core\Enum\HttpMethod;
+use GibsonOS\Core\Enum\HttpStatusCode;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\UserError;
@@ -16,7 +18,6 @@ use GibsonOS\Core\Model\User;
 use GibsonOS\Core\Repository\RoleRepository;
 use GibsonOS\Core\Service\SessionService;
 use GibsonOS\Core\Service\WebService;
-use GibsonOS\Core\Utility\StatusCode;
 use GibsonOS\Module\Middleware\Exception\InstanceException;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Repository\InstanceRepository;
@@ -78,24 +79,29 @@ class InstanceService
         string $module,
         string $task,
         string $action,
-        array $parameters = []
+        array $parameters = [],
+        HttpMethod $method = HttpMethod::POST,
     ): Response {
-        $response = $this->webService->post(
-            (new Request(sprintf(
-                '%s%s/%s/%s',
-                $instance->getUrl(),
-                $module,
-                $task,
-                $action
-            )))
-                ->setParameters($parameters)
-                ->setHeaders([
-                    'X-Requested-With' => 'XMLHttpRequest',
-                    'X-GibsonOs-Secret' => $instance->getSecret(),
-                ])
-        );
+        $request = (new Request(sprintf(
+            '%s%s/%s/%s',
+            $instance->getUrl(),
+            $module,
+            $task,
+            $action
+        )))
+            ->setParameters($parameters)
+            ->setHeaders([
+                'X-Requested-With' => 'XMLHttpRequest',
+                'X-GibsonOs-Secret' => $instance->getSecret(),
+            ]);
 
-        if ($response->getStatusCode() !== StatusCode::OK) {
+        if ($method === HttpMethod::GET) {
+            $response = $this->webService->get($request);
+        } else {
+            $response = $this->webService->post($request);
+        }
+
+        if ($response->getStatusCode() !== HttpStatusCode::OK) {
             throw new InstanceException($response->getBody()->getContent());
         }
 

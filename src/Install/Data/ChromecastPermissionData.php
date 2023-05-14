@@ -5,12 +5,18 @@ namespace GibsonOS\Module\Middleware\Install\Data;
 
 use Generator;
 use GibsonOS\Core\Dto\Install\Success;
+use GibsonOS\Core\Enum\HttpMethod;
+use GibsonOS\Core\Enum\Permission as PermissionEnum;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Install\AbstractInstall;
 use GibsonOS\Core\Install\SingleInstallInterface;
 use GibsonOS\Core\Manager\ServiceManager;
+use GibsonOS\Core\Model\Module;
+use GibsonOS\Core\Model\Task;
 use GibsonOS\Core\Model\User\Permission;
+use GibsonOS\Core\Repository\ActionRepository;
+use GibsonOS\Core\Repository\TaskRepository;
 use GibsonOS\Core\Repository\User\PermissionRepository;
 use GibsonOS\Core\Service\InstallService;
 use GibsonOS\Core\Service\PriorityInterface;
@@ -19,9 +25,15 @@ use ReflectionException;
 
 class ChromecastPermissionData extends AbstractInstall implements PriorityInterface, SingleInstallInterface
 {
+    private Module $module;
+
+    private Task $task;
+
     public function __construct(
         ServiceManager $serviceManagerService,
         private readonly PermissionRepository $permissionRepository,
+        private readonly TaskRepository $taskRepository,
+        private readonly ActionRepository $actionRepository,
     ) {
         parent::__construct($serviceManagerService);
     }
@@ -33,13 +45,16 @@ class ChromecastPermissionData extends AbstractInstall implements PriorityInterf
      */
     public function install(string $module): Generator
     {
-        $this->setPermission('show', Permission::READ);
-        $this->setPermission('addUser', Permission::WRITE);
-        $this->setPermission('toSeeList', Permission::READ);
-        $this->setPermission('image', Permission::READ);
-        $this->setPermission('get', Permission::READ);
-        $this->setPermission('savePosition', Permission::WRITE);
-        $this->setPermission('error', Permission::WRITE);
+        $this->module = $this->moduleRepository->getByName('middleware');
+        $this->task = $this->taskRepository->getByNameAndModuleId('middleware', $this->module->getId() ?? 0);
+
+        $this->setPermission('show', HttpMethod::GET, PermissionEnum::READ);
+        $this->setPermission('addUser', HttpMethod::POST, PermissionEnum::WRITE);
+        $this->setPermission('toSeeList', HttpMethod::GET, PermissionEnum::READ);
+        $this->setPermission('image', HttpMethod::GET, PermissionEnum::READ);
+        $this->setPermission('', HttpMethod::GET, PermissionEnum::READ);
+        $this->setPermission('savePosition', HttpMethod::POST, PermissionEnum::WRITE);
+        $this->setPermission('error', HttpMethod::POST, PermissionEnum::WRITE);
 
         yield new Success('Set chromecast permission for middleware!');
     }
@@ -49,17 +64,23 @@ class ChromecastPermissionData extends AbstractInstall implements PriorityInterf
      * @throws JsonException
      * @throws ReflectionException
      */
-    private function setPermission(string $action, int $permission): void
+    private function setPermission(string $action, HttpMethod $method, PermissionEnum $permission): void
     {
+        $actionModel = $this->actionRepository->getByNameAndTaskId($action, $method, $this->task->getId() ?? 0);
+
         try {
-            $this->permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', $action);
+            $this->permissionRepository->getByModuleTaskAndAction(
+                $this->module,
+                $this->task,
+                $actionModel,
+            );
         } catch (SelectError) {
             $this->modelManager->save(
                 (new Permission())
-                    ->setModule('middleware')
-                    ->setTask('chromecast')
-                    ->setAction($action)
-                    ->setPermission($permission)
+                    ->setModule($this->module)
+                    ->setTask($this->task)
+                    ->setAction($actionModel)
+                    ->setPermission($permission->value)
             );
         }
     }

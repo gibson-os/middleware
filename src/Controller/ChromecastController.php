@@ -10,17 +10,18 @@ use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Attribute\GetMappedModels;
 use GibsonOS\Core\Attribute\GetModel;
 use GibsonOS\Core\Controller\AbstractController;
+use GibsonOS\Core\Enum\HttpMethod;
+use GibsonOS\Core\Enum\HttpStatusCode;
+use GibsonOS\Core\Enum\Permission;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\WebException;
 use GibsonOS\Core\Manager\ModelManager;
-use GibsonOS\Core\Model\User\Permission;
 use GibsonOS\Core\Service\Response\AjaxResponse;
 use GibsonOS\Core\Service\Response\Response;
 use GibsonOS\Core\Service\Response\ResponseInterface;
 use GibsonOS\Core\Service\Response\TwigResponse;
 use GibsonOS\Core\Utility\JsonUtility;
-use GibsonOS\Core\Utility\StatusCode;
 use GibsonOS\Module\Middleware\Attribute\GetInstance;
 use GibsonOS\Module\Middleware\Exception\InstanceException;
 use GibsonOS\Module\Middleware\Model\Chromecast\Error;
@@ -34,7 +35,7 @@ use ReflectionException;
 
 class ChromecastController extends AbstractController
 {
-    #[CheckPermission(Permission::READ)]
+    #[CheckPermission([Permission::READ])]
     public function getReceiverAppId(#[GetEnv('CHROMECAST_RECEIVER_APP_ID')] string $receiverAppId): AjaxResponse
     {
         return $this->returnSuccess($receiverAppId);
@@ -46,8 +47,8 @@ class ChromecastController extends AbstractController
      * @throws InstanceException
      * @throws SaveError
      */
-    #[CheckPermission(Permission::READ)]
-    public function toSeeList(
+    #[CheckPermission([Permission::READ])]
+    public function getToSeeList(
         ModelManager $modelManager,
         InstanceService $instanceService,
         #[GetModel] Session $session,
@@ -58,6 +59,7 @@ class ChromecastController extends AbstractController
             'middleware',
             'toSeeList',
             ['sessionId' => $session->getId()],
+            HttpMethod::GET,
         );
         $body = JsonUtility::decode($response->getBody()->getContent());
         $modelManager->saveWithoutChildren($session->setLastUpdate(new DateTimeImmutable()));
@@ -68,8 +70,8 @@ class ChromecastController extends AbstractController
     /**
      * @throws SaveError
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function setSession(
+    #[CheckPermission([Permission::WRITE])]
+    public function postSetSession(
         ModelManager $modelManager,
         #[GetMappedModel] Session $session,
         #[GetInstance] Instance $instance,
@@ -79,13 +81,13 @@ class ChromecastController extends AbstractController
         return $this->returnSuccess();
     }
 
-    #[CheckPermission(Permission::READ)]
+    #[CheckPermission([Permission::READ])]
     public function getSessionUserIds(
         #[GetModel] Session $session,
         #[GetInstance] Instance $instance,
     ): AjaxResponse {
         if ($instance->getId() !== $session->getInstanceId()) {
-            return $this->returnFailure('Session not found!', StatusCode::NOT_FOUND);
+            return $this->returnFailure('Session not found!', HttpStatusCode::NOT_FOUND);
         }
 
         return $this->returnSuccess(array_map(
@@ -97,8 +99,8 @@ class ChromecastController extends AbstractController
     /**
      * @throws SaveError
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function addUser(
+    #[CheckPermission([Permission::WRITE])]
+    public function postAddUser(
         ModelManager $modelManager,
         #[GetMappedModel(['session_id' => 'sessionId', 'user_id' => 'userId'])] User $user,
     ): AjaxResponse {
@@ -115,8 +117,8 @@ class ChromecastController extends AbstractController
      * @throws InstanceException
      * @throws SelectError
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function savePosition(
+    #[CheckPermission([Permission::WRITE])]
+    public function postSavePosition(
         InstanceService $instanceService,
         ModelManager $modelManager,
         UserRepository $userRepository,
@@ -152,7 +154,7 @@ class ChromecastController extends AbstractController
      * @throws JsonException
      * @throws SaveError
      */
-    #[CheckPermission(Permission::READ)]
+    #[CheckPermission([Permission::READ])]
     public function get(
         ModelManager $modelManager,
         InstanceService $instanceService,
@@ -163,19 +165,20 @@ class ChromecastController extends AbstractController
             $session->getInstance(),
             'explorer',
             'middleware',
-            'get',
+            '',
             [
                 'sessionId' => $session->getId(),
                 'token' => $token,
-            ]
+            ],
+            HttpMethod::GET,
         );
         $modelManager->saveWithoutChildren($session->setLastUpdate(new DateTimeImmutable()));
 
         return $this->returnSuccess(JsonUtility::decode($response->getBody()->getContent())['data']);
     }
 
-    #[CheckPermission(Permission::READ)]
-    public function show(): TwigResponse
+    #[CheckPermission([Permission::READ])]
+    public function getShow(): TwigResponse
     {
         return $this->renderTemplate('@middleware/chromecast.html.twig');
     }
@@ -185,8 +188,8 @@ class ChromecastController extends AbstractController
      * @throws InstanceException
      * @throws SaveError
      */
-    #[CheckPermission(Permission::READ)]
-    public function image(
+    #[CheckPermission([Permission::READ])]
+    public function getImage(
         ModelManager $modelManager,
         InstanceService $instanceService,
         #[GetModel] Session $session,
@@ -213,13 +216,14 @@ class ChromecastController extends AbstractController
             'middleware',
             'image',
             $parameters,
+            HttpMethod::GET,
         );
         $body = $response->getBody()->getContent();
         $modelManager->saveWithoutChildren($session->setLastUpdate(new DateTimeImmutable()));
 
         return new Response(
             $body,
-            StatusCode::OK,
+            HttpStatusCode::OK,
             [
                 'Pragma' => 'public',
                 'Expires' => 0,
@@ -236,8 +240,8 @@ class ChromecastController extends AbstractController
     /**
      * @throws SaveError
      */
-    #[CheckPermission(Permission::WRITE)]
-    public function error(
+    #[CheckPermission([Permission::WRITE])]
+    public function postError(
         ModelManager $modelManager,
         #[GetMappedModel] Error $error,
     ): AjaxResponse {
