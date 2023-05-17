@@ -41,7 +41,7 @@ class InstancePermissionData extends AbstractInstall implements PriorityInterfac
     {
         $middlewareModule = $this->moduleRepository->getByName('middleware');
         $instanceTask = $this->taskRepository->getByNameAndModuleId('instance', $middlewareModule->getId() ?? 0);
-        $newTokenAction = $this->actionRepository->getByNameAndTaskId('newToken', HttpMethod::GET, $instanceTask->getId() ?? 0);
+        $newTokenAction = $this->actionRepository->getByNameAndTaskId('newToken', HttpMethod::POST, $instanceTask->getId() ?? 0);
 
         try {
             $this->permissionRepository->getByModuleTaskAndAction($middlewareModule, $instanceTask, $newTokenAction);
