@@ -46,7 +46,7 @@ class ChromecastPermissionData extends AbstractInstall implements PriorityInterf
     public function install(string $module): Generator
     {
         $this->module = $this->moduleRepository->getByName('middleware');
-        $this->task = $this->taskRepository->getByNameAndModuleId('middleware', $this->module->getId() ?? 0);
+        $this->task = $this->taskRepository->getByNameAndModuleId('chromecast', $this->module->getId() ?? 0);
 
         $this->setPermission('show', HttpMethod::GET, PermissionEnum::READ);
         $this->setPermission('addUser', HttpMethod::POST, PermissionEnum::WRITE);
