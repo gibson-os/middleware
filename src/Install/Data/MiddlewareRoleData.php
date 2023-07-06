@@ -40,7 +40,6 @@ class MiddlewareRoleData extends AbstractInstall implements PriorityInterface, S
                         $permission,
                     ])
             );
-            $this->modelManager->save($permission);
         }
 
         yield new Success('Add middleware role!');

@@ -51,8 +51,8 @@ class SendCommand extends AbstractCommand
     {
         foreach ($this->messageRepository->getUnsentMessages() as $unsentMessage) {
             if (
-                $this->messageRepository->countSentMessagesSince($this->dateTimeService->get('-1 second')) >= self::MAX_PER_SECOND ||
-                $this->messageRepository->countSentMessagesSince($this->dateTimeService->get('-1 hour')) >= self::MAX_PER_HOUR
+                $this->messageRepository->countSentMessagesSince($this->dateTimeService->get('-1 second')) >= self::MAX_PER_SECOND
+                || $this->messageRepository->countSentMessagesSince($this->dateTimeService->get('-1 hour')) >= self::MAX_PER_HOUR
             ) {
                 return self::ERROR;
             }
