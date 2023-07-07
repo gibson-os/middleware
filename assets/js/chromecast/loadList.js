@@ -3,7 +3,7 @@ Chromecast.loadList = (callback) => {
 
     jQuery.ajax({
         url: '/middleware/chromecast/toSeeList',
-        method: 'POST',
+        method: 'GET',
         data: {
             id: cast.framework.CastReceiverContext.getInstance().getApplicationData().sessionId
         },
