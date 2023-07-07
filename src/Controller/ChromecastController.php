@@ -71,7 +71,7 @@ class ChromecastController extends AbstractController
      * @throws SaveError
      */
     #[CheckPermission([Permission::WRITE])]
-    public function postSetSession(
+    public function postSession(
         ModelManager $modelManager,
         #[GetMappedModel] Session $session,
         #[GetInstance] Instance $instance,
