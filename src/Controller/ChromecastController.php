@@ -100,7 +100,7 @@ class ChromecastController extends AbstractController
      * @throws SaveError
      */
     #[CheckPermission([Permission::WRITE])]
-    public function postAddUser(
+    public function postUser(
         ModelManager $modelManager,
         #[GetMappedModel(['session_id' => 'sessionId', 'user_id' => 'userId'])] User $user,
     ): AjaxResponse {

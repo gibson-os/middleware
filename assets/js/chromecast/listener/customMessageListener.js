@@ -10,7 +10,7 @@ Chromecast.customMessageListener = () => {
         jQuery('footer li:first').stop();
         jQuery('footer li').remove();
         jQuery.ajax({
-            url: '/middleware/chromecast/addUser',
+            url: '/middleware/chromecast/user',
             method: 'POST',
             data: {
                 sessionId: castReceiverManager.getApplicationData().sessionId,
