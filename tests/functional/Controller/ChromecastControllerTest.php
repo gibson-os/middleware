@@ -339,7 +339,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         ;
         $modelManager->saveWithoutChildren($session);
 
-        $request = (new Request('http://arthur.dent/explorer/middleware/get'))
+        $request = (new Request('http://arthur.dent/explorer/middleware'))
             ->setParameters([
                 'sessionId' => 'marvin',
                 'token' => 'galaxy',
