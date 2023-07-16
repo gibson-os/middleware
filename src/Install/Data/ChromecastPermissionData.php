@@ -20,7 +20,6 @@ use GibsonOS\Core\Repository\TaskRepository;
 use GibsonOS\Core\Repository\User\PermissionRepository;
 use GibsonOS\Core\Service\InstallService;
 use GibsonOS\Core\Service\PriorityInterface;
-use JsonException;
 use ReflectionException;
 
 class ChromecastPermissionData extends AbstractInstall implements PriorityInterface, SingleInstallInterface
@@ -39,9 +38,9 @@ class ChromecastPermissionData extends AbstractInstall implements PriorityInterf
     }
 
     /**
-     * @throws JsonException
      * @throws ReflectionException
      * @throws SaveError
+     * @throws SelectError
      */
     public function install(string $module): Generator
     {
@@ -55,14 +54,16 @@ class ChromecastPermissionData extends AbstractInstall implements PriorityInterf
         $this->setPermission('', HttpMethod::GET, PermissionEnum::READ);
         $this->setPermission('position', HttpMethod::POST, PermissionEnum::WRITE);
         $this->setPermission('error', HttpMethod::POST, PermissionEnum::WRITE);
+        $this->setPermission('video', HttpMethod::GET, PermissionEnum::READ);
+        $this->setPermission('audio', HttpMethod::GET, PermissionEnum::READ);
 
         yield new Success('Set chromecast permission for middleware!');
     }
 
     /**
      * @throws SaveError
-     * @throws JsonException
      * @throws ReflectionException
+     * @throws SelectError
      */
     private function setPermission(string $action, HttpMethod $method, PermissionEnum $permission): void
     {
