@@ -18,10 +18,11 @@ use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\WebException;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\Response\AjaxResponse;
-use GibsonOS\Core\Service\Response\ResourceResponse;
 use GibsonOS\Core\Service\Response\Response;
 use GibsonOS\Core\Service\Response\ResponseInterface;
 use GibsonOS\Core\Service\Response\TwigResponse;
+use GibsonOS\Core\Service\Response\WebResponse;
+use GibsonOS\Core\Service\WebService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Middleware\Attribute\GetInstance;
 use GibsonOS\Module\Middleware\Exception\InstanceException;
@@ -114,59 +115,49 @@ class ChromecastController extends AbstractController
         return $this->returnSuccess();
     }
 
-    /**
-     * @throws InstanceException
-     */
     #[CheckPermission([Permission::READ])]
     public function getVideo(
         InstanceService $instanceService,
+        WebService $webService,
         #[GetModel] Session $session,
         string $token,
-    ): ResourceResponse {
-        $response = $instanceService->sendRequest(
-            $session->getInstance(),
-            'explorer',
-            'middleware',
-            'video',
-            [
-                'sessionId' => $session->getId(),
-                'token' => $token,
-            ],
-            HttpMethod::GET,
-        );
-
-        return new ResourceResponse(
-            $response->getBody()->getResource(),
-            $token . 'mp4',
-            $response->getBody()->getLength(),
+    ): WebResponse {
+        return new WebResponse(
+            $instanceService->getRequest(
+                $session->getInstance(),
+                'explorer',
+                'middleware',
+                'video',
+                [
+                    'sessionId' => $session->getId(),
+                    'token' => $token,
+                ],
+                HttpMethod::GET,
+            ),
+            $webService,
         );
     }
 
-    /**
-     * @throws InstanceException
-     */
     #[CheckPermission([Permission::READ])]
     public function getAudio(
         InstanceService $instanceService,
+        WebService $webService,
         #[GetModel] Session $session,
         string $token,
-    ): ResourceResponse {
-        $response = $instanceService->sendRequest(
-            $session->getInstance(),
-            'explorer',
-            'middleware',
-            'audio',
-            [
-                'sessionId' => $session->getId(),
-                'token' => $token,
-            ],
-            HttpMethod::GET,
-        );
-
-        return new ResourceResponse(
-            $response->getBody()->getResource(),
-            $token . 'mp3',
-            $response->getBody()->getLength(),
+    ): WebResponse {
+        return new WebResponse(
+            $instanceService->getRequest(
+                $session->getInstance(),
+                'explorer',
+                'middleware',
+                'audio',
+                [
+                    'sessionId' => $session->getId(),
+                    'token' => $token,
+                ],
+                HttpMethod::GET,
+            ),
+            $webService,
         );
     }
 
@@ -175,6 +166,7 @@ class ChromecastController extends AbstractController
      * @throws ReflectionException
      * @throws InstanceException
      * @throws SelectError
+     * @throws WebException
      */
     #[CheckPermission([Permission::WRITE])]
     public function postPosition(

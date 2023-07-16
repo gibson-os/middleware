@@ -12,6 +12,7 @@ use GibsonOS\Core\Enum\HttpStatusCode;
 use GibsonOS\Core\Exception\Model\SaveError;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\UserError;
+use GibsonOS\Core\Exception\WebException;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\Role\User as RoleUser;
 use GibsonOS\Core\Model\User;
@@ -21,6 +22,7 @@ use GibsonOS\Core\Service\WebService;
 use GibsonOS\Module\Middleware\Exception\InstanceException;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Repository\InstanceRepository;
+use ReflectionException;
 
 class InstanceService
 {
@@ -33,6 +35,9 @@ class InstanceService
     ) {
     }
 
+    /**
+     * @throws UserError
+     */
     public function tokenLogin(string $token): Instance
     {
         try {
@@ -53,6 +58,7 @@ class InstanceService
     /**
      * @throws SelectError
      * @throws SaveError
+     * @throws ReflectionException
      */
     public function addInstanceUser(Instance $instance): Instance
     {
@@ -66,6 +72,9 @@ class InstanceService
         return $instance;
     }
 
+    /**
+     * @throws Exception
+     */
     public function setToken(Instance $instance): Instance
     {
         return $instance
@@ -74,6 +83,34 @@ class InstanceService
         ;
     }
 
+    public function getRequest(
+        Instance $instance,
+        string $module,
+        string $task,
+        string $action,
+        array $parameters = [],
+        HttpMethod $method = HttpMethod::POST,
+    ): Request {
+        return (new Request(sprintf(
+            '%s%s/%s/%s',
+            $instance->getUrl(),
+            $module,
+            $task,
+            $action
+        )))
+            ->setMethod($method)
+            ->setParameters($parameters)
+            ->setHeaders([
+                'X-Requested-With' => 'XMLHttpRequest',
+                'X-GibsonOs-Secret' => $instance->getSecret(),
+            ])
+        ;
+    }
+
+    /**
+     * @throws InstanceException
+     * @throws WebException
+     */
     public function sendRequest(
         Instance $instance,
         string $module,
@@ -82,24 +119,9 @@ class InstanceService
         array $parameters = [],
         HttpMethod $method = HttpMethod::POST,
     ): Response {
-        $request = (new Request(sprintf(
-            '%s%s/%s/%s',
-            $instance->getUrl(),
-            $module,
-            $task,
-            $action
-        )))
-            ->setParameters($parameters)
-            ->setHeaders([
-                'X-Requested-With' => 'XMLHttpRequest',
-                'X-GibsonOs-Secret' => $instance->getSecret(),
-            ]);
-
-        if ($method === HttpMethod::GET) {
-            $response = $this->webService->get($request);
-        } else {
-            $response = $this->webService->post($request);
-        }
+        $response = $this->webService->request(
+            $this->getRequest($instance, $module, $task, $action, $parameters, $method)
+        );
 
         if ($response->getStatusCode() !== HttpStatusCode::OK) {
             throw new InstanceException($response->getBody()->getContent());

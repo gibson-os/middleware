@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use GibsonOS\Core\Dto\Web\Body;
 use GibsonOS\Core\Dto\Web\Request;
 use GibsonOS\Core\Dto\Web\Response;
+use GibsonOS\Core\Enum\HttpMethod;
 use GibsonOS\Core\Enum\HttpStatusCode;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\UserError;
@@ -149,6 +150,7 @@ class InstanceServiceTest extends Unit
         ;
         $request = (new Request('arthur://dent/galaxy/ford/prefect'))
             ->setParameters(['marvin' => '42'])
+            ->setMethod(HttpMethod::POST)
             ->setHeaders([
                 'X-Requested-With' => 'XMLHttpRequest',
                 'X-GibsonOs-Secret' => 'zaphod',
@@ -161,7 +163,7 @@ class InstanceServiceTest extends Unit
             new Body(),
             '',
         );
-        $this->webService->post(Argument::exact($request))
+        $this->webService->request(Argument::exact($request))
             ->shouldBeCalledOnce()
             ->willReturn($response)
         ;
@@ -186,6 +188,7 @@ class InstanceServiceTest extends Unit
         ;
         $request = (new Request('arthur://dent/galaxy/ford/prefect'))
             ->setParameters(['marvin' => '42'])
+            ->setMethod(HttpMethod::POST)
             ->setHeaders([
                 'X-Requested-With' => 'XMLHttpRequest',
                 'X-GibsonOs-Secret' => 'zaphod',
@@ -198,7 +201,7 @@ class InstanceServiceTest extends Unit
             (new Body())->setContent('trilian', 7),
             '',
         );
-        $this->webService->post(Argument::exact($request))
+        $this->webService->request(Argument::exact($request))
             ->shouldBeCalledOnce()
             ->willReturn($response)
         ;
