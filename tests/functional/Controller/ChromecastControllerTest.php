@@ -205,7 +205,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         $this->assertEquals($user->getSenderId(), $savedUser->getSenderId());
     }
 
-    public function testSavePosition(): void
+    public function testPostPosition(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
         $instance = (new Instance())
@@ -223,7 +223,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         ;
         $modelManager->saveWithoutChildren($session);
 
-        $request = (new Request('http://arthur.dent/explorer/middleware/savePosition'))
+        $request = (new Request('http://arthur.dent/explorer/middleware/position'))
             ->setParameters([
                 'sessionId' => 'marvin',
                 'token' => 'galaxy',
@@ -248,7 +248,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         $oldLastUpdate = $session->getLastUpdate();
 
         $this->checkSuccessResponse(
-            $this->chromecastController->savePosition(
+            $this->chromecastController->postPosition(
                 $this->serviceManager->get(InstanceService::class),
                 $modelManager,
                 $this->serviceManager->get(UserRepository::class),
@@ -263,7 +263,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         $this->assertSame([$user], $session->getUsers());
     }
 
-    public function testSavePositionNoUsers(): void
+    public function testPostPositionNoUsers(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
         $instance = (new Instance())
@@ -282,7 +282,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         ;
         $modelManager->save($session);
 
-        $request = (new Request('http://arthur.dent/explorer/middleware/savePosition'))
+        $request = (new Request('http://arthur.dent/explorer/middleware/position'))
             ->setParameters([
                 'sessionId' => 'marvin',
                 'token' => 'galaxy',
@@ -307,7 +307,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         $oldLastUpdate = $session->getLastUpdate();
 
         $this->checkSuccessResponse(
-            $this->chromecastController->savePosition(
+            $this->chromecastController->postPosition(
                 $this->serviceManager->get(InstanceService::class),
                 $modelManager,
                 $this->serviceManager->get(UserRepository::class),

@@ -46,6 +46,7 @@ class ChromecastController extends AbstractController
      * @throws JsonException
      * @throws InstanceException
      * @throws SaveError
+     * @throws ReflectionException
      */
     #[CheckPermission([Permission::READ])]
     public function getToSeeList(
@@ -69,6 +70,7 @@ class ChromecastController extends AbstractController
 
     /**
      * @throws SaveError
+     * @throws ReflectionException
      */
     #[CheckPermission([Permission::WRITE])]
     public function postSession(
@@ -98,6 +100,7 @@ class ChromecastController extends AbstractController
 
     /**
      * @throws SaveError
+     * @throws ReflectionException
      */
     #[CheckPermission([Permission::WRITE])]
     public function postUser(
@@ -112,13 +115,12 @@ class ChromecastController extends AbstractController
 
     /**
      * @throws SaveError
-     * @throws JsonException
      * @throws ReflectionException
      * @throws InstanceException
      * @throws SelectError
      */
     #[CheckPermission([Permission::WRITE])]
-    public function postSavePosition(
+    public function postPosition(
         InstanceService $instanceService,
         ModelManager $modelManager,
         UserRepository $userRepository,
@@ -136,7 +138,7 @@ class ChromecastController extends AbstractController
             $session->getInstance(),
             'explorer',
             'middleware',
-            'savePosition',
+            'position',
             [
                 'sessionId' => $session->getId(),
                 'token' => $token,
@@ -153,6 +155,7 @@ class ChromecastController extends AbstractController
      * @throws WebException
      * @throws JsonException
      * @throws SaveError
+     * @throws ReflectionException
      */
     #[CheckPermission([Permission::READ])]
     public function get(
@@ -187,6 +190,7 @@ class ChromecastController extends AbstractController
      * @throws WebException
      * @throws InstanceException
      * @throws SaveError
+     * @throws ReflectionException
      */
     #[CheckPermission([Permission::READ])]
     public function getImage(
@@ -239,6 +243,7 @@ class ChromecastController extends AbstractController
 
     /**
      * @throws SaveError
+     * @throws ReflectionException
      */
     #[CheckPermission([Permission::WRITE])]
     public function postError(

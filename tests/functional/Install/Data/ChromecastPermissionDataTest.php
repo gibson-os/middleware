@@ -33,7 +33,7 @@ class ChromecastPermissionDataTest extends MiddlewareFunctionalTest
         $modelManager->saveWithoutChildren((new Action())->setName('toSeeList')->setModule($module)->setTask($task));
         $modelManager->saveWithoutChildren((new Action())->setName('image')->setModule($module)->setTask($task));
         $modelManager->saveWithoutChildren((new Action())->setName('get')->setModule($module)->setTask($task));
-        $modelManager->saveWithoutChildren((new Action())->setName('savePosition')->setModule($module)->setTask($task));
+        $modelManager->saveWithoutChildren((new Action())->setName('position')->setModule($module)->setTask($task));
         $modelManager->saveWithoutChildren((new Action())->setName('error')->setModule($module)->setTask($task));
     }
 
@@ -65,11 +65,11 @@ class ChromecastPermissionDataTest extends MiddlewareFunctionalTest
         );
         $this->assertEquals(
             2,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'get')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', '')->getPermission()
         );
         $this->assertEquals(
             4,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'savePosition')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'position')->getPermission()
         );
         $this->assertEquals(
             4,
@@ -119,7 +119,7 @@ class ChromecastPermissionDataTest extends MiddlewareFunctionalTest
             (new Permission())
                 ->setModule('middleware')
                 ->setTask('chromecast')
-                ->setAction('savePosition')
+                ->setAction('position')
                 ->setPermission(1)
         );
         $modelManager->saveWithoutChildren(
@@ -156,11 +156,11 @@ class ChromecastPermissionDataTest extends MiddlewareFunctionalTest
         );
         $this->assertEquals(
             1,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'get')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', '')->getPermission()
         );
         $this->assertEquals(
             1,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'savePosition')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'position')->getPermission()
         );
         $this->assertEquals(
             1,

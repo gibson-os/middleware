@@ -17,7 +17,7 @@ Chromecast.savePosition = () => {
     Chromecast.savePositionRequestActive = true;
 
     jQuery.ajax({
-        url: '/middleware/chromecast/savePosition',
+        url: '/middleware/chromecast/position',
         method: 'POST',
         data: {
             id: castReceiverManager.getApplicationData().sessionId,
