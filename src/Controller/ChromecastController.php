@@ -22,7 +22,6 @@ use GibsonOS\Core\Service\Response\Response;
 use GibsonOS\Core\Service\Response\ResponseInterface;
 use GibsonOS\Core\Service\Response\TwigResponse;
 use GibsonOS\Core\Service\Response\WebResponse;
-use GibsonOS\Core\Service\WebService;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Middleware\Attribute\GetInstance;
 use GibsonOS\Module\Middleware\Exception\InstanceException;
@@ -31,6 +30,7 @@ use GibsonOS\Module\Middleware\Model\Chromecast\Session;
 use GibsonOS\Module\Middleware\Model\Chromecast\Session\User;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Repository\Chromecast\Session\UserRepository;
+use GibsonOS\Module\Middleware\Service\ChromecastService;
 use GibsonOS\Module\Middleware\Service\InstanceService;
 use JsonException;
 use ReflectionException;
@@ -117,48 +117,20 @@ class ChromecastController extends AbstractController
 
     #[CheckPermission([Permission::READ])]
     public function getVideo(
-        InstanceService $instanceService,
-        WebService $webService,
+        ChromecastService $chromecastService,
         #[GetModel] Session $session,
         string $token,
     ): WebResponse {
-        return new WebResponse(
-            $instanceService->getRequest(
-                $session->getInstance(),
-                'explorer',
-                'middleware',
-                'video',
-                [
-                    'sessionId' => $session->getId(),
-                    'token' => $token,
-                ],
-                HttpMethod::GET,
-            ),
-            $webService,
-        );
+        return $chromecastService->getMiddlewareAction($session, 'video', $token);
     }
 
     #[CheckPermission([Permission::READ])]
     public function getAudio(
-        InstanceService $instanceService,
-        WebService $webService,
+        ChromecastService $chromecastService,
         #[GetModel] Session $session,
         string $token,
     ): WebResponse {
-        return new WebResponse(
-            $instanceService->getRequest(
-                $session->getInstance(),
-                'explorer',
-                'middleware',
-                'audio',
-                [
-                    'sessionId' => $session->getId(),
-                    'token' => $token,
-                ],
-                HttpMethod::GET,
-            ),
-            $webService,
-        );
+        return $chromecastService->getMiddlewareAction($session, 'audio', $token);
     }
 
     /**

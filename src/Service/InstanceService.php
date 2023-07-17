@@ -90,7 +90,10 @@ class InstanceService
         string $action,
         array $parameters = [],
         HttpMethod $method = HttpMethod::POST,
+        array $headers = ['X-Requested-With' => 'XMLHttpRequest'],
     ): Request {
+        $headers['X-GibsonOs-Secret'] = $instance->getSecret();
+
         return (new Request(sprintf(
             '%s%s/%s/%s',
             $instance->getUrl(),
@@ -100,10 +103,7 @@ class InstanceService
         )))
             ->setMethod($method)
             ->setParameters($parameters)
-            ->setHeaders([
-                'X-Requested-With' => 'XMLHttpRequest',
-                'X-GibsonOs-Secret' => $instance->getSecret(),
-            ])
+            ->setHeaders($headers)
         ;
     }
 
