@@ -116,21 +116,12 @@ class ChromecastController extends AbstractController
     }
 
     #[CheckPermission([Permission::READ])]
-    public function getVideo(
+    public function getStream(
         ChromecastService $chromecastService,
         #[GetModel] Session $session,
         string $token,
     ): WebResponse {
-        return $chromecastService->getMiddlewareAction($session, 'video', $token);
-    }
-
-    #[CheckPermission([Permission::READ])]
-    public function getAudio(
-        ChromecastService $chromecastService,
-        #[GetModel] Session $session,
-        string $token,
-    ): WebResponse {
-        return $chromecastService->getMiddlewareAction($session, 'audio', $token);
+        return $chromecastService->getMiddlewareAction($session, 'stream', $token);
     }
 
     /**

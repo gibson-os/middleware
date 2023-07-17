@@ -26,7 +26,7 @@ class ChromecastService
                 $session->getInstance(),
                 'explorer',
                 'middleware',
-                'audio',
+                $action,
                 [
                     'sessionId' => $session->getId(),
                     'token' => $token,
