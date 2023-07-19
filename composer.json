@@ -49,7 +49,8 @@
     "config": {
         "allow-plugins": {
             "composer/package-versions-deprecated": true,
-            "captainhook/plugin-composer": true
+            "captainhook/plugin-composer": true,
+            "php-http/discovery": true
         }
     }
 }
