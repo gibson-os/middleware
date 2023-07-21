@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7feb57170a7ae65261c20aeb93aedff6",
+    "content-hash": "80eb9d01b145cff8b5da6c421a728de5",
     "packages": [
         {
             "name": "firebase/php-jwt",
@@ -71,16 +71,16 @@
         },
         {
             "name": "gibson-os/core",
-            "version": "v2.7.0",
+            "version": "v3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gibson-os/core.git",
-                "reference": "87072901685605319a6127cbbdc89fa4be362c04"
+                "reference": "f4dbb485dfcefe84ea23b598ed56f0b25029113c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gibson-os/core/zipball/87072901685605319a6127cbbdc89fa4be362c04",
-                "reference": "87072901685605319a6127cbbdc89fa4be362c04",
+                "url": "https://api.github.com/repos/gibson-os/core/zipball/f4dbb485dfcefe84ea23b598ed56f0b25029113c",
+                "reference": "f4dbb485dfcefe84ea23b598ed56f0b25029113c",
                 "shasum": ""
             },
             "require": {
@@ -89,13 +89,13 @@
                 "ext-gd": "*",
                 "ext-json": "*",
                 "ext-mbstring": "*",
+                "ext-mysqli": "*",
                 "ext-openssl": "*",
                 "ext-sockets": "*",
                 "ext-sqlite3": "*",
                 "ext-zip": "*",
                 "gibson-os/mdo": "^1.0.0",
                 "google/auth": "^1.18",
-                "guzzlehttp/psr7": "^2.5",
                 "open-telemetry/exporter-otlp": "^0.0.17",
                 "open-telemetry/sdk": "^0.0.17",
                 "php": " ^8.2",
@@ -129,9 +129,9 @@
             "notification-url": "https://packagist.org/downloads/",
             "support": {
                 "issues": "https://github.com/gibson-os/core/issues",
-                "source": "https://github.com/gibson-os/core/tree/v2.7.0"
+                "source": "https://github.com/gibson-os/core/tree/v3.0.0"
             },
-            "time": "2023-07-19T12:04:09+00:00"
+            "time": "2023-07-21T11:28:45+00:00"
         },
         {
             "name": "gibson-os/mdo",
@@ -6610,16 +6610,16 @@
         },
         {
             "name": "spatie/array-to-xml",
-            "version": "3.1.6",
+            "version": "3.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/array-to-xml.git",
-                "reference": "e210b98957987c755372465be105d32113f339a4"
+                "reference": "f9ab39c808500c347d5a8b6b13310bd5221e39e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/array-to-xml/zipball/e210b98957987c755372465be105d32113f339a4",
-                "reference": "e210b98957987c755372465be105d32113f339a4",
+                "url": "https://api.github.com/repos/spatie/array-to-xml/zipball/f9ab39c808500c347d5a8b6b13310bd5221e39e7",
+                "reference": "f9ab39c808500c347d5a8b6b13310bd5221e39e7",
                 "shasum": ""
             },
             "require": {
@@ -6657,7 +6657,7 @@
                 "xml"
             ],
             "support": {
-                "source": "https://github.com/spatie/array-to-xml/tree/3.1.6"
+                "source": "https://github.com/spatie/array-to-xml/tree/3.2.0"
             },
             "funding": [
                 {
@@ -6669,7 +6669,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-05-11T14:04:07+00:00"
+            "time": "2023-07-19T18:30:26+00:00"
         },
         {
             "name": "symfony/browser-kit",

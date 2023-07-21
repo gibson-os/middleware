@@ -2,7 +2,7 @@
     "name": "gibson-os/middleware",
     "require": {
         "php": " ^8.2",
-        "gibson-os/core": "^2.0.0",
+        "gibson-os/core": "^3.0.0",
         "google/auth": "^1.18"
     },
     "require-dev": {
