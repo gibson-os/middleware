@@ -10,9 +10,9 @@ use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Key;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Middleware\Model\Chromecast\Session\User;
 use GibsonOS\Module\Middleware\Model\Instance;
-use mysqlDatabase;
 
 /**
  * @method Instance getInstance()
@@ -44,9 +44,9 @@ class Session extends AbstractModel
     #[Constraint('session', User::class)]
     protected array $users;
 
-    public function __construct(mysqlDatabase $database = null)
+    public function __construct(ModelWrapper $modelWrapper)
     {
-        parent::__construct($database);
+        parent::__construct($modelWrapper);
 
         $this->started = new DateTimeImmutable();
         $this->lastUpdate = new DateTimeImmutable();

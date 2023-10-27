@@ -21,7 +21,8 @@ class FcmService
     private string $url;
 
     public function __construct(
-        #[GetEnv('FCM_PROJECT_ID')] private readonly string $projectId,
+        #[GetEnv('FCM_PROJECT_ID')]
+        private readonly string $projectId,
         private readonly WebService $webService,
         private readonly LoggerInterface $logger,
         private readonly CredentialsLoader $credentialsLoader,

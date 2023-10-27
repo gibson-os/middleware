@@ -25,8 +25,10 @@ class MessageController extends AbstractController
     public function postPush(
         MessageRepository $messageRepository,
         ModelManager $modelManager,
-        #[GetObject] Message $message,
-        #[GetInstance] Instance $instance,
+        #[GetObject]
+        Message $message,
+        #[GetInstance]
+        Instance $instance,
     ): AjaxResponse {
         if ($messageRepository->fcmTokenNotFound($message->getFcmToken())) {
             return $this->returnFailure('FCM token not found', HttpStatusCode::NOT_FOUND);

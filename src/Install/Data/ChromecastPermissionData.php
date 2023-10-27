@@ -20,6 +20,9 @@ use GibsonOS\Core\Repository\TaskRepository;
 use GibsonOS\Core\Repository\User\PermissionRepository;
 use GibsonOS\Core\Service\InstallService;
 use GibsonOS\Core\Service\PriorityInterface;
+use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use ReflectionException;
 
 class ChromecastPermissionData extends AbstractInstall implements PriorityInterface, SingleInstallInterface
@@ -38,6 +41,9 @@ class ChromecastPermissionData extends AbstractInstall implements PriorityInterf
     }
 
     /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
      * @throws ReflectionException
      * @throws SaveError
      * @throws SelectError
@@ -60,9 +66,12 @@ class ChromecastPermissionData extends AbstractInstall implements PriorityInterf
     }
 
     /**
-     * @throws SaveError
      * @throws ReflectionException
+     * @throws SaveError
      * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
      */
     private function setPermission(string $action, HttpMethod $method, PermissionEnum $permission): void
     {
@@ -76,7 +85,7 @@ class ChromecastPermissionData extends AbstractInstall implements PriorityInterf
             );
         } catch (SelectError) {
             $this->modelManager->save(
-                (new Permission())
+                (new Permission($this->modelWrapper))
                     ->setModule($this->module)
                     ->setTask($this->task)
                     ->setAction($actionModel)

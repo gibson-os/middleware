@@ -4,27 +4,41 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Middleware\Repository;
 
 use DateTimeInterface;
-use GibsonOS\Core\Attribute\GetTableName;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Repository\AbstractRepository;
 use GibsonOS\Module\Middleware\Model\Message;
+use JsonException;
+use MDO\Enum\OrderDirection;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
+use ReflectionException;
 
 class MessageRepository extends AbstractRepository
 {
-    public function __construct(#[GetTableName(Message::class)] private readonly string $messageTableName)
-    {
-    }
-
     /**
-     * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
+     * @throws ReflectionException
      *
      * @return Message[]
      */
     public function getUnsentMessages(): array
     {
-        return $this->fetchAll('`sent` IS NULL', [], Message::class, orderBy: '`id`');
+        return $this->fetchAll(
+            '`sent` IS NULL',
+            [],
+            Message::class,
+            orderBy: ['`id`' => OrderDirection::ASC],
+        );
     }
 
+    /**
+     * @throws ClientException
+     * @throws JsonException
+     * @throws RecordException
+     * @throws ReflectionException
+     */
     public function fcmTokenNotFound(string $fcmToken): bool
     {
         try {
@@ -32,21 +46,27 @@ class MessageRepository extends AbstractRepository
                 '`fcm_token`=? AND `sent` IS NOT NULL',
                 [$fcmToken],
                 Message::class,
-                '`id` DESC'
+                ['`id`' => OrderDirection::DESC],
             )->isNotFound();
         } catch (SelectError) {
             return false;
         }
     }
 
+    /**
+     * @throws ClientException
+     * @throws RecordException
+     * @throws SelectError
+     */
     public function countSentMessagesSince(DateTimeInterface $dateTime): int
     {
-        $table = $this->getTable($this->messageTableName)
-            ->setWhere('`sent`>=?')
-            ->addWhereParameter($dateTime->format('Y-m-d H:i:s'))
-        ;
-        $table->selectPrepared(false, 'COUNT(`id`)');
+        $aggregations = $this->getAggregations(
+            ['count' => 'COUNT(`id`)'],
+            Message::class,
+            '`sent`>=?',
+            [$dateTime->format('Y-m-d H:i:s')],
+        );
 
-        return (int) $table->connection->fetchResult();
+        return (int) $aggregations->get('count')->getValue();
     }
 }

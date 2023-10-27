@@ -9,8 +9,8 @@ use GibsonOS\Core\Attribute\Install\Database\Column;
 use GibsonOS\Core\Attribute\Install\Database\Constraint;
 use GibsonOS\Core\Attribute\Install\Database\Table;
 use GibsonOS\Core\Model\AbstractModel;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Middleware\Model\Chromecast\Session;
-use mysqlDatabase;
 
 /**
  * @method Session getSession()
@@ -37,9 +37,9 @@ class User extends AbstractModel
     #[Constraint(name: 'fkChromecast_session_userChromecast_session')]
     protected Session $session;
 
-    public function __construct(mysqlDatabase $database = null)
+    public function __construct(ModelWrapper $modelWrapper)
     {
-        parent::__construct($database);
+        parent::__construct($modelWrapper);
 
         $this->added = new DateTimeImmutable();
     }

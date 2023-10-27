@@ -27,7 +27,8 @@ class InstanceController extends AbstractController
      */
     #[CheckPermission([Permission::WRITE])]
     public function postNewToken(
-        #[GetMappedModel(['url' => 'url'])] Instance $instance,
+        #[GetMappedModel(['url' => 'url'])]
+        Instance $instance,
         InstanceRepository $instanceRepository,
         InstanceService $instanceService,
         ModelManager $modelManager,

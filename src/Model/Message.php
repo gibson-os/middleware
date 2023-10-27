@@ -13,9 +13,9 @@ use GibsonOS\Core\Enum\Middleware\Message\Type;
 use GibsonOS\Core\Enum\Middleware\Message\Vibrate;
 use GibsonOS\Core\Model\AbstractModel;
 use GibsonOS\Core\Utility\JsonUtility;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use JsonException;
 use JsonSerializable;
-use mysqlDatabase;
 
 /**
  * @method Message  setInstance(Instance $instance)
@@ -75,9 +75,9 @@ class Message extends AbstractModel implements JsonSerializable
     #[Constraint]
     protected Instance $instance;
 
-    public function __construct(mysqlDatabase $database = null)
+    public function __construct(ModelWrapper $modelWrapper)
     {
-        parent::__construct($database);
+        parent::__construct($modelWrapper);
 
         $this->added = new DateTimeImmutable();
     }

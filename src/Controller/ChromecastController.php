@@ -54,7 +54,8 @@ class ChromecastController extends AbstractController
     public function getToSeeList(
         ModelManager $modelManager,
         InstanceService $instanceService,
-        #[GetModel] Session $session,
+        #[GetModel]
+        Session $session,
     ): AjaxResponse {
         $response = $instanceService->sendRequest(
             $session->getInstance(),
@@ -77,8 +78,10 @@ class ChromecastController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function postSession(
         ModelManager $modelManager,
-        #[GetMappedModel] Session $session,
-        #[GetInstance] Instance $instance,
+        #[GetMappedModel]
+        Session $session,
+        #[GetInstance]
+        Instance $instance,
     ): AjaxResponse {
         $modelManager->saveWithoutChildren($session->setInstance($instance));
 
@@ -87,8 +90,10 @@ class ChromecastController extends AbstractController
 
     #[CheckPermission([Permission::READ])]
     public function getSessionUserIds(
-        #[GetModel] Session $session,
-        #[GetInstance] Instance $instance,
+        #[GetModel]
+        Session $session,
+        #[GetInstance]
+        Instance $instance,
     ): AjaxResponse {
         if ($instance->getId() !== $session->getInstanceId()) {
             return $this->returnFailure('Session not found!', HttpStatusCode::NOT_FOUND);
@@ -107,7 +112,8 @@ class ChromecastController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function postUser(
         ModelManager $modelManager,
-        #[GetMappedModel(['session_id' => 'sessionId', 'user_id' => 'userId'])] User $user,
+        #[GetMappedModel(['session_id' => 'sessionId', 'user_id' => 'userId'])]
+        User $user,
     ): AjaxResponse {
         $modelManager->saveWithoutChildren($user);
         $modelManager->saveWithoutChildren($user->getSession()->setLastUpdate(new DateTimeImmutable()));
@@ -118,7 +124,8 @@ class ChromecastController extends AbstractController
     #[CheckPermission([Permission::READ])]
     public function getStream(
         ChromecastService $chromecastService,
-        #[GetModel] Session $session,
+        #[GetModel]
+        Session $session,
         string $token,
     ): WebResponse {
         return $chromecastService->getMiddlewareAction($session, 'stream', $token);
@@ -136,8 +143,10 @@ class ChromecastController extends AbstractController
         InstanceService $instanceService,
         ModelManager $modelManager,
         UserRepository $userRepository,
-        #[GetModel] Session $session,
-        #[GetMappedModels(User::class, ['session_id' => 'sessionId', 'user_id' => 'userId'])] array $users,
+        #[GetModel]
+        Session $session,
+        #[GetMappedModels(User::class, ['session_id' => 'sessionId', 'user_id' => 'userId'])]
+        array $users,
         string $token,
         int $position,
     ): AjaxResponse {
@@ -173,7 +182,8 @@ class ChromecastController extends AbstractController
     public function get(
         ModelManager $modelManager,
         InstanceService $instanceService,
-        #[GetModel] Session $session,
+        #[GetModel]
+        Session $session,
         string $token,
     ): AjaxResponse {
         $response = $instanceService->sendRequest(
@@ -208,7 +218,8 @@ class ChromecastController extends AbstractController
     public function getImage(
         ModelManager $modelManager,
         InstanceService $instanceService,
-        #[GetModel] Session $session,
+        #[GetModel]
+        Session $session,
         string $token,
         int $width = null,
         int $height = null,
@@ -260,7 +271,8 @@ class ChromecastController extends AbstractController
     #[CheckPermission([Permission::WRITE])]
     public function postError(
         ModelManager $modelManager,
-        #[GetMappedModel] Error $error,
+        #[GetMappedModel]
+        Error $error,
     ): AjaxResponse {
         $error->setInstanceId($error->getSession()->getInstanceId());
         $modelManager->saveWithoutChildren($error);

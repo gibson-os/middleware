@@ -12,7 +12,8 @@ use JsonException;
 class CredentialsLoader
 {
     public function __construct(
-        #[GetEnv('GOOGLE_APPLICATION_CREDENTIALS')] private readonly string $googleCredentialFile,
+        #[GetEnv('GOOGLE_APPLICATION_CREDENTIALS')]
+        private readonly string $googleCredentialFile,
     ) {
     }
 

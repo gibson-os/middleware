@@ -19,9 +19,13 @@ use GibsonOS\Core\Model\User;
 use GibsonOS\Core\Repository\RoleRepository;
 use GibsonOS\Core\Service\SessionService;
 use GibsonOS\Core\Service\WebService;
+use GibsonOS\Core\Wrapper\ModelWrapper;
 use GibsonOS\Module\Middleware\Exception\InstanceException;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Repository\InstanceRepository;
+use JsonException;
+use MDO\Exception\ClientException;
+use MDO\Exception\RecordException;
 use ReflectionException;
 
 class InstanceService
@@ -32,6 +36,7 @@ class InstanceService
         private readonly SessionService $sessionService,
         private readonly ModelManager $modelManager,
         private readonly WebService $webService,
+        private readonly ModelWrapper $modelWrapper,
     ) {
     }
 
@@ -56,15 +61,18 @@ class InstanceService
     }
 
     /**
-     * @throws SelectError
-     * @throws SaveError
      * @throws ReflectionException
+     * @throws SaveError
+     * @throws SelectError
+     * @throws JsonException
+     * @throws ClientException
+     * @throws RecordException
      */
     public function addInstanceUser(Instance $instance): Instance
     {
-        $user = (new User())->setUser($instance->getUrl());
+        $user = (new User($this->modelWrapper))->setUser($instance->getUrl());
         $this->modelManager->saveWithoutChildren($user);
-        $roleUser = (new RoleUser())->setUser($user);
+        $roleUser = (new RoleUser($this->modelWrapper))->setUser($user);
         $this->modelManager->saveWithoutChildren($this->roleRepository->getByName('Middleware')->addUsers([$roleUser]));
         $this->modelManager->saveWithoutChildren($roleUser);
         $instance->setUser($user);
