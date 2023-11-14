@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Test\Unit\Middleware\Install\Data;
+namespace GibsonOS\Test\Functional\Middleware\Install\Data;
 
 use GibsonOS\Core\Dto\Install\Success;
+use GibsonOS\Core\Enum\HttpMethod;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\Action;
 use GibsonOS\Core\Model\Module;
@@ -24,21 +25,137 @@ class ChromecastPermissionDataTest extends MiddlewareFunctionalTest
         $this->chromecastPermissionData = $this->serviceManager->get(ChromecastPermissionData::class);
 
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $module = (new Module())->setName('middleware');
+        $module = (new Module($this->modelWrapper))->setName('middleware');
         $modelManager->saveWithoutChildren($module);
-        $task = (new Task())->setName('chromecast')->setModule($module);
+        $task = (new Task($this->modelWrapper))->setName('chromecast')->setModule($module);
         $modelManager->saveWithoutChildren($task);
-        $modelManager->saveWithoutChildren((new Action())->setName('show')->setModule($module)->setTask($task));
-        $modelManager->saveWithoutChildren((new Action())->setName('addUser')->setModule($module)->setTask($task));
-        $modelManager->saveWithoutChildren((new Action())->setName('toSeeList')->setModule($module)->setTask($task));
-        $modelManager->saveWithoutChildren((new Action())->setName('image')->setModule($module)->setTask($task));
-        $modelManager->saveWithoutChildren((new Action())->setName('get')->setModule($module)->setTask($task));
-        $modelManager->saveWithoutChildren((new Action())->setName('position')->setModule($module)->setTask($task));
-        $modelManager->saveWithoutChildren((new Action())->setName('error')->setModule($module)->setTask($task));
+        $modelManager->saveWithoutChildren(
+            (new Action($this->modelWrapper))
+                ->setName('show')
+                ->setMethod(HttpMethod::GET)
+                ->setModule($module)
+                ->setTask($task)
+        );
+        $modelManager->saveWithoutChildren(
+            (new Action($this->modelWrapper))
+                ->setName('user')
+                ->setMethod(HttpMethod::POST)
+                ->setModule($module)
+                ->setTask($task)
+        );
+        $modelManager->saveWithoutChildren(
+            (new Action($this->modelWrapper))
+                ->setName('toSeeList')
+                ->setMethod(HttpMethod::GET)
+                ->setModule($module)
+                ->setTask($task)
+        );
+        $modelManager->saveWithoutChildren(
+            (new Action($this->modelWrapper))
+                ->setName('image')
+                ->setMethod(HttpMethod::GET)
+                ->setModule($module)
+                ->setTask($task)
+        );
+        $modelManager->saveWithoutChildren(
+            (new Action($this->modelWrapper))
+                ->setName('')
+                ->setMethod(HttpMethod::GET)
+                ->setModule($module)
+                ->setTask($task)
+        );
+        $modelManager->saveWithoutChildren(
+            (new Action($this->modelWrapper))
+                ->setName('position')
+                ->setMethod(HttpMethod::POST)
+                ->setModule($module)
+                ->setTask($task)
+        );
+        $modelManager->saveWithoutChildren(
+            (new Action($this->modelWrapper))
+                ->setName('error')
+                ->setMethod(HttpMethod::POST)
+                ->setModule($module)
+                ->setTask($task)
+        );
+        $modelManager->saveWithoutChildren(
+            (new Action($this->modelWrapper))
+                ->setName('stream')
+                ->setMethod(HttpMethod::GET)
+                ->setModule($module)
+                ->setTask($task)
+        );
     }
 
     public function testInstall(): void
     {
+        $modelManager = $this->serviceManager->get(ModelManager::class);
+        $module = (new Module($this->modelWrapper))
+            ->setName('middleware')
+        ;
+        $modelManager->saveWithoutChildren($module);
+        $task = (new Task($this->modelWrapper))
+            ->setName('chromecast')
+            ->setModule($module)
+        ;
+        $modelManager->saveWithoutChildren($task);
+        $showAction = (new Action($this->modelWrapper))
+            ->setName('show')
+            ->setMethod(HttpMethod::GET)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($showAction);
+        $userAction = (new Action($this->modelWrapper))
+            ->setName('user')
+            ->setMethod(HttpMethod::POST)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($userAction);
+        $toSeeListAction = (new Action($this->modelWrapper))
+            ->setName('toSeeList')
+            ->setMethod(HttpMethod::GET)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($toSeeListAction);
+        $imageAction = (new Action($this->modelWrapper))
+            ->setName('image')
+            ->setMethod(HttpMethod::GET)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($imageAction);
+        $getAction = (new Action($this->modelWrapper))
+            ->setName('')
+            ->setMethod(HttpMethod::GET)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($getAction);
+        $positionAction = (new Action($this->modelWrapper))
+            ->setName('position')
+            ->setMethod(HttpMethod::POST)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($positionAction);
+        $errorAction = (new Action($this->modelWrapper))
+            ->setName('error')
+            ->setMethod(HttpMethod::POST)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($errorAction);
+        $streamAction = (new Action($this->modelWrapper))
+            ->setName('stream')
+            ->setMethod(HttpMethod::GET)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($streamAction);
+
         $install = $this->chromecastPermissionData->install('galaxy');
 
         /** @var Success $success */
@@ -49,84 +166,160 @@ class ChromecastPermissionDataTest extends MiddlewareFunctionalTest
 
         $this->assertEquals(
             2,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'show')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $showAction)->getPermission()
         );
         $this->assertEquals(
             4,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'addUser')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $userAction)->getPermission()
         );
         $this->assertEquals(
             2,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'toSeeList')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $toSeeListAction)->getPermission()
         );
         $this->assertEquals(
             2,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'image')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $imageAction)->getPermission()
         );
         $this->assertEquals(
             2,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', '')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $getAction)->getPermission()
         );
         $this->assertEquals(
             4,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'position')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $positionAction)->getPermission()
         );
         $this->assertEquals(
             4,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'error')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $errorAction)->getPermission()
+        );
+        $this->assertEquals(
+            2,
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $streamAction)->getPermission()
         );
     }
 
     public function testInstallAlreadyExists(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
+        $module = (new Module($this->modelWrapper))
+            ->setName('middleware')
+        ;
+        $modelManager->saveWithoutChildren($module);
+        $task = (new Task($this->modelWrapper))
+            ->setName('chromecast')
+            ->setModule($module)
+        ;
+        $modelManager->saveWithoutChildren($task);
+        $showAction = (new Action($this->modelWrapper))
+            ->setName('show')
+            ->setMethod(HttpMethod::GET)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($showAction);
+        $userAction = (new Action($this->modelWrapper))
+            ->setName('user')
+            ->setMethod(HttpMethod::POST)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($userAction);
+        $toSeeListAction = (new Action($this->modelWrapper))
+            ->setName('toSeeList')
+            ->setMethod(HttpMethod::GET)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($toSeeListAction);
+        $imageAction = (new Action($this->modelWrapper))
+            ->setName('image')
+            ->setMethod(HttpMethod::GET)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($imageAction);
+        $getAction = (new Action($this->modelWrapper))
+            ->setName('')
+            ->setMethod(HttpMethod::GET)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($getAction);
+        $positionAction = (new Action($this->modelWrapper))
+            ->setName('position')
+            ->setMethod(HttpMethod::POST)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($positionAction);
+        $errorAction = (new Action($this->modelWrapper))
+            ->setName('error')
+            ->setMethod(HttpMethod::POST)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($errorAction);
+        $streamAction = (new Action($this->modelWrapper))
+            ->setName('stream')
+            ->setMethod(HttpMethod::GET)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($streamAction);
         $modelManager->saveWithoutChildren(
-            (new Permission())
-                ->setModule('middleware')
-                ->setTask('chromecast')
-                ->setAction('show')
+            (new Permission($this->modelWrapper))
+                ->setModule($module)
+                ->setTask($task)
+                ->setAction($showAction)
                 ->setPermission(1)
         );
         $modelManager->saveWithoutChildren(
-            (new Permission())
-                ->setModule('middleware')
-                ->setTask('chromecast')
-                ->setAction('addUser')
+            (new Permission($this->modelWrapper))
+                ->setModule($module)
+                ->setTask($task)
+                ->setAction($userAction)
                 ->setPermission(1)
         );
         $modelManager->saveWithoutChildren(
-            (new Permission())
-                ->setModule('middleware')
-                ->setTask('chromecast')
-                ->setAction('toSeeList')
+            (new Permission($this->modelWrapper))
+                ->setModule($module)
+                ->setTask($task)
+                ->setAction($toSeeListAction)
                 ->setPermission(1)
         );
         $modelManager->saveWithoutChildren(
-            (new Permission())
-                ->setModule('middleware')
-                ->setTask('chromecast')
-                ->setAction('image')
+            (new Permission($this->modelWrapper))
+                ->setModule($module)
+                ->setTask($task)
+                ->setAction($imageAction)
                 ->setPermission(1)
         );
         $modelManager->saveWithoutChildren(
-            (new Permission())
-                ->setModule('middleware')
-                ->setTask('chromecast')
-                ->setAction('get')
+            (new Permission($this->modelWrapper))
+                ->setModule($module)
+                ->setTask($task)
+                ->setAction($getAction)
                 ->setPermission(1)
         );
         $modelManager->saveWithoutChildren(
-            (new Permission())
-                ->setModule('middleware')
-                ->setTask('chromecast')
-                ->setAction('position')
+            (new Permission($this->modelWrapper))
+                ->setModule($module)
+                ->setTask($task)
+                ->setAction($positionAction)
                 ->setPermission(1)
         );
         $modelManager->saveWithoutChildren(
-            (new Permission())
-                ->setModule('middleware')
-                ->setTask('chromecast')
-                ->setAction('error')
+            (new Permission($this->modelWrapper))
+                ->setModule($module)
+                ->setTask($task)
+                ->setAction($errorAction)
+                ->setPermission(1)
+        );
+        $modelManager->saveWithoutChildren(
+            (new Permission($this->modelWrapper))
+                ->setModule($module)
+                ->setTask($task)
+                ->setAction($streamAction)
                 ->setPermission(1)
         );
 
@@ -140,31 +333,35 @@ class ChromecastPermissionDataTest extends MiddlewareFunctionalTest
 
         $this->assertEquals(
             1,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'show')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $showAction)->getPermission()
         );
         $this->assertEquals(
             1,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'addUser')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $userAction)->getPermission()
         );
         $this->assertEquals(
             1,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'toSeeList')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $toSeeListAction)->getPermission()
         );
         $this->assertEquals(
             1,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'image')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $imageAction)->getPermission()
         );
         $this->assertEquals(
             1,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', '')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $getAction)->getPermission()
         );
         $this->assertEquals(
             1,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'position')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $positionAction)->getPermission()
         );
         $this->assertEquals(
             1,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'chromecast', 'error')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $errorAction)->getPermission()
+        );
+        $this->assertEquals(
+            1,
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $streamAction)->getPermission()
         );
     }
 

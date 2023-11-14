@@ -7,6 +7,8 @@ use DateTimeImmutable;
 use GibsonOS\Core\Dto\Web\Body;
 use GibsonOS\Core\Dto\Web\Request;
 use GibsonOS\Core\Dto\Web\Response;
+use GibsonOS\Core\Enum\HttpMethod;
+use GibsonOS\Core\Enum\HttpStatusCode;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\TwigService;
 use GibsonOS\Module\Middleware\Controller\ChromecastController;
@@ -17,7 +19,6 @@ use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Repository\Chromecast\Session\UserRepository;
 use GibsonOS\Module\Middleware\Service\InstanceService;
 use GibsonOS\Test\Functional\Middleware\MiddlewareFunctionalTest;
-use Prophecy\Argument;
 use Twig\Loader\FilesystemLoader;
 
 class ChromecastControllerTest extends MiddlewareFunctionalTest
@@ -39,11 +40,11 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         );
     }
 
-    public function testToSeeList(): void
+    public function testGetToSeeList(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
         $user = $this->addUser();
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($user)
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -51,13 +52,14 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
             ->setExpireDate(new DateTimeImmutable('+1 hour'))
         ;
         $modelManager->saveWithoutChildren($instance);
-        $session = (new Session())
+        $session = (new Session($this->modelWrapper))
             ->setId('marvin')
             ->setInstance($instance)
         ;
         $modelManager->save($session);
 
         $request = (new Request('http://arthur.dent/explorer/middleware/toSeeList'))
+            ->setMethod(HttpMethod::GET)
             ->setParameters(['sessionId' => 'marvin'])
             ->setHeaders([
                 'X-Requested-With' => 'XMLHttpRequest',
@@ -66,18 +68,18 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         ;
         $response = new Response(
             $request,
-            200,
+            HttpStatusCode::OK,
             [],
             (new Body())->setContent('{"data": "prefect", "total": 42}', 35),
             ''
         );
-        $this->webService->post(Argument::exact($request))
+        $this->webService->request($request)
             ->shouldBeCalledOnce()
             ->willReturn($response)
         ;
 
         $this->checkSuccessResponse(
-            $this->chromecastController->toSeeList(
+            $this->chromecastController->getToSeeList(
                 $modelManager,
                 $this->serviceManager->get(InstanceService::class),
                 $session,
@@ -87,11 +89,11 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         );
     }
 
-    public function testSetSession(): void
+    public function testPostSession(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
         $user = $this->addUser();
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($user)
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -99,12 +101,12 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
             ->setExpireDate(new DateTimeImmutable('+1 hour'))
         ;
         $modelManager->saveWithoutChildren($instance);
-        $session = (new Session())
+        $session = (new Session($this->modelWrapper))
             ->setId('marvin')
         ;
 
         $this->checkSuccessResponse(
-            $this->chromecastController->setSession(
+            $this->chromecastController->postSession(
                 $modelManager,
                 $session,
                 $instance,
@@ -118,7 +120,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
         $user = $this->addUser();
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($user)
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -126,10 +128,10 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
             ->setExpireDate(new DateTimeImmutable('+1 hour'))
         ;
         $modelManager->saveWithoutChildren($instance);
-        $session = (new Session())
+        $session = (new Session($this->modelWrapper))
             ->setId('marvin')
             ->setInstance($instance)
-            ->setUsers([(new User())->setUserId(42)->setSenderId('marvin')])
+            ->setUsers([(new User($this->modelWrapper))->setUserId(42)->setSenderId('marvin')])
         ;
         $modelManager->save($session);
 
@@ -143,7 +145,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
         $user = $this->addUser();
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($user)
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -151,7 +153,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
             ->setExpireDate(new DateTimeImmutable('+1 hour'))
         ;
         $modelManager->saveWithoutChildren($instance);
-        $instance2 = (new Instance())
+        $instance2 = (new Instance($this->modelWrapper))
             ->setUser($this->addUser('zaphod'))
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -159,10 +161,10 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
             ->setExpireDate(new DateTimeImmutable('+1 hour'))
         ;
         $modelManager->saveWithoutChildren($instance2);
-        $session = (new Session())
+        $session = (new Session($this->modelWrapper))
             ->setId('marvin')
             ->setInstance($instance)
-            ->setUsers([(new User())->setUserId(42)->setSenderId('marvin')])
+            ->setUsers([(new User($this->modelWrapper))->setUserId(42)->setSenderId('marvin')])
         ;
         $modelManager->save($session);
 
@@ -175,7 +177,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
     public function testAddUser(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -183,20 +185,20 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
             ->setExpireDate(new DateTimeImmutable('+1 hour'))
         ;
         $modelManager->saveWithoutChildren($instance);
-        $session = (new Session())
+        $session = (new Session($this->modelWrapper))
             ->setId('marvin')
             ->setInstance($instance)
-            ->setUsers([(new User())->setUserId(42)->setSenderId('marvin')])
+            ->setUsers([(new User($this->modelWrapper))->setUserId(42)->setSenderId('marvin')])
         ;
         $modelManager->save($session);
-        $user = (new User())
+        $user = (new User($this->modelWrapper))
             ->setSession($session)
             ->setUserId(42)
             ->setSenderId('marvin')
         ;
         $oldLastUpdate = $session->getLastUpdate();
 
-        $this->checkSuccessResponse($this->chromecastController->addUser($modelManager, $user));
+        $this->checkSuccessResponse($this->chromecastController->postUser($modelManager, $user));
 
         $this->assertNotSame($oldLastUpdate, $session->getLastUpdate());
         $savedUser = $this->serviceManager->get(UserRepository::class)->getFirst($session);
@@ -208,7 +210,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
     public function testPostPosition(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -216,14 +218,15 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
             ->setExpireDate(new DateTimeImmutable('+1 hour'))
         ;
         $modelManager->saveWithoutChildren($instance);
-        $user = (new User())->setUserId(42)->setSenderId('marvin');
-        $session = (new Session())
+        $user = (new User($this->modelWrapper))->setUserId(42)->setSenderId('marvin');
+        $session = (new Session($this->modelWrapper))
             ->setId('marvin')
             ->setInstance($instance)
         ;
         $modelManager->saveWithoutChildren($session);
 
         $request = (new Request('http://arthur.dent/explorer/middleware/position'))
+            ->setMethod(HttpMethod::POST)
             ->setParameters([
                 'sessionId' => 'marvin',
                 'token' => 'galaxy',
@@ -236,12 +239,12 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         ;
         $response = new Response(
             $request,
-            200,
+            HttpStatusCode::OK,
             [],
             new Body(),
             ''
         );
-        $this->webService->post(Argument::exact($request))
+        $this->webService->request($request)
             ->shouldBeCalledOnce()
             ->willReturn($response)
         ;
@@ -266,7 +269,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
     public function testPostPositionNoUsers(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -274,8 +277,8 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
             ->setExpireDate(new DateTimeImmutable('+1 hour'))
         ;
         $modelManager->saveWithoutChildren($instance);
-        $user = (new User())->setUserId(42)->setSenderId('marvin');
-        $session = (new Session())
+        $user = (new User($this->modelWrapper))->setUserId(42)->setSenderId('marvin');
+        $session = (new Session($this->modelWrapper))
             ->setId('marvin')
             ->setInstance($instance)
             ->setUsers([$user])
@@ -283,6 +286,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         $modelManager->save($session);
 
         $request = (new Request('http://arthur.dent/explorer/middleware/position'))
+            ->setMethod(HttpMethod::POST)
             ->setParameters([
                 'sessionId' => 'marvin',
                 'token' => 'galaxy',
@@ -295,12 +299,12 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         ;
         $response = new Response(
             $request,
-            200,
+            HttpStatusCode::OK,
             [],
             new Body(),
             ''
         );
-        $this->webService->post(Argument::exact($request))
+        $this->webService->request($request)
             ->shouldBeCalledOnce()
             ->willReturn($response)
         ;
@@ -325,7 +329,7 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
     public function testGet(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -333,13 +337,14 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
             ->setExpireDate(new DateTimeImmutable('+1 hour'))
         ;
         $modelManager->saveWithoutChildren($instance);
-        $session = (new Session())
+        $session = (new Session($this->modelWrapper))
             ->setId('marvin')
             ->setInstance($instance)
         ;
         $modelManager->saveWithoutChildren($session);
 
-        $request = (new Request('http://arthur.dent/explorer/middleware'))
+        $request = (new Request('http://arthur.dent/explorer/middleware/'))
+            ->setMethod(HttpMethod::GET)
             ->setParameters([
                 'sessionId' => 'marvin',
                 'token' => 'galaxy',
@@ -351,12 +356,12 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         ;
         $response = new Response(
             $request,
-            200,
+            HttpStatusCode::OK,
             [],
             (new Body())->setContent('{"data": "prefect"}', 22),
             ''
         );
-        $this->webService->post(Argument::exact($request))
+        $this->webService->request($request)
             ->shouldBeCalledOnce()
             ->willReturn($response)
         ;
@@ -375,14 +380,14 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         $this->assertNotSame($oldLastUpdate, $session->getLastUpdate());
     }
 
-    public function testShow(): void
+    public function testGetShow(): void
     {
         $loader = new FilesystemLoader();
         $templatePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'template';
         $loader->addPath($templatePath, 'middleware');
         $this->serviceManager->get(TwigService::class)->getTwig()->setLoader($loader);
 
-        $response = $this->chromecastController->show();
+        $response = $this->chromecastController->getShow();
 
         $body = $response->getBody();
         $this->assertEquals(
@@ -405,10 +410,10 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         $this->assertStringContainsString('class="currentPosition"', $body);
     }
 
-    public function testImage(): void
+    public function testGetImage(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -416,13 +421,14 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
             ->setExpireDate(new DateTimeImmutable('+1 hour'))
         ;
         $modelManager->saveWithoutChildren($instance);
-        $session = (new Session())
+        $session = (new Session($this->modelWrapper))
             ->setId('marvin')
             ->setInstance($instance)
         ;
         $modelManager->saveWithoutChildren($session);
 
         $request = (new Request('http://arthur.dent/explorer/middleware/image'))
+            ->setMethod(HttpMethod::GET)
             ->setParameters([
                 'sessionId' => 'marvin',
                 'token' => 'galaxy',
@@ -436,18 +442,18 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         ;
         $response = new Response(
             $request,
-            200,
+            HttpStatusCode::OK,
             [],
             (new Body())->setContent('prefect', 7),
             ''
         );
-        $this->webService->post(Argument::exact($request))
+        $this->webService->request($request)
             ->shouldBeCalledOnce()
             ->willReturn($response)
         ;
         $oldLastUpdate = $session->getLastUpdate();
 
-        $imageResponse = $this->chromecastController->image(
+        $imageResponse = $this->chromecastController->getImage(
             $modelManager,
             $this->serviceManager->get(InstanceService::class),
             $session,
@@ -473,10 +479,10 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         $this->assertNotSame($oldLastUpdate, $session->getLastUpdate());
     }
 
-    public function testImageWithoutWidth(): void
+    public function testGetImageWithoutWidth(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -484,13 +490,14 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
             ->setExpireDate(new DateTimeImmutable('+1 hour'))
         ;
         $modelManager->saveWithoutChildren($instance);
-        $session = (new Session())
+        $session = (new Session($this->modelWrapper))
             ->setId('marvin')
             ->setInstance($instance)
         ;
         $modelManager->saveWithoutChildren($session);
 
         $request = (new Request('http://arthur.dent/explorer/middleware/image'))
+            ->setMethod(HttpMethod::GET)
             ->setParameters([
                 'sessionId' => 'marvin',
                 'token' => 'galaxy',
@@ -503,18 +510,18 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         ;
         $response = new Response(
             $request,
-            200,
+            HttpStatusCode::OK,
             [],
             (new Body())->setContent('prefect', 7),
             ''
         );
-        $this->webService->post(Argument::exact($request))
+        $this->webService->request($request)
             ->shouldBeCalledOnce()
             ->willReturn($response)
         ;
         $oldLastUpdate = $session->getLastUpdate();
 
-        $imageResponse = $this->chromecastController->image(
+        $imageResponse = $this->chromecastController->getImage(
             $modelManager,
             $this->serviceManager->get(InstanceService::class),
             $session,
@@ -539,10 +546,10 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         $this->assertNotSame($oldLastUpdate, $session->getLastUpdate());
     }
 
-    public function testImageWithoutHeight(): void
+    public function testGetImageWithoutHeight(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -550,13 +557,14 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
             ->setExpireDate(new DateTimeImmutable('+1 hour'))
         ;
         $modelManager->saveWithoutChildren($instance);
-        $session = (new Session())
+        $session = (new Session($this->modelWrapper))
             ->setId('marvin')
             ->setInstance($instance)
         ;
         $modelManager->saveWithoutChildren($session);
 
         $request = (new Request('http://arthur.dent/explorer/middleware/image'))
+            ->setMethod(HttpMethod::GET)
             ->setParameters([
                 'sessionId' => 'marvin',
                 'token' => 'galaxy',
@@ -569,18 +577,18 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         ;
         $response = new Response(
             $request,
-            200,
+            HttpStatusCode::OK,
             [],
             (new Body())->setContent('prefect', 7),
             ''
         );
-        $this->webService->post(Argument::exact($request))
+        $this->webService->request($request)
             ->shouldBeCalledOnce()
             ->willReturn($response)
         ;
         $oldLastUpdate = $session->getLastUpdate();
 
-        $imageResponse = $this->chromecastController->image(
+        $imageResponse = $this->chromecastController->getImage(
             $modelManager,
             $this->serviceManager->get(InstanceService::class),
             $session,
@@ -605,10 +613,10 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         $this->assertNotSame($oldLastUpdate, $session->getLastUpdate());
     }
 
-    public function testImageWithoutWidthAndHeight(): void
+    public function testGetImageWithoutWidthAndHeight(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -616,13 +624,14 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
             ->setExpireDate(new DateTimeImmutable('+1 hour'))
         ;
         $modelManager->saveWithoutChildren($instance);
-        $session = (new Session())
+        $session = (new Session($this->modelWrapper))
             ->setId('marvin')
             ->setInstance($instance)
         ;
         $modelManager->saveWithoutChildren($session);
 
         $request = (new Request('http://arthur.dent/explorer/middleware/image'))
+            ->setMethod(HttpMethod::GET)
             ->setParameters([
                 'sessionId' => 'marvin',
                 'token' => 'galaxy',
@@ -634,18 +643,18 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         ;
         $response = new Response(
             $request,
-            200,
+            HttpStatusCode::OK,
             [],
             (new Body())->setContent('prefect', 7),
             ''
         );
-        $this->webService->post(Argument::exact($request))
+        $this->webService->request($request)
             ->shouldBeCalledOnce()
             ->willReturn($response)
         ;
         $oldLastUpdate = $session->getLastUpdate();
 
-        $imageResponse = $this->chromecastController->image(
+        $imageResponse = $this->chromecastController->getImage(
             $modelManager,
             $this->serviceManager->get(InstanceService::class),
             $session,
@@ -669,10 +678,10 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
         $this->assertNotSame($oldLastUpdate, $session->getLastUpdate());
     }
 
-    public function testError(): void
+    public function testPostError(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -680,18 +689,18 @@ class ChromecastControllerTest extends MiddlewareFunctionalTest
             ->setExpireDate(new DateTimeImmutable('+1 hour'))
         ;
         $modelManager->saveWithoutChildren($instance);
-        $session = (new Session())
+        $session = (new Session($this->modelWrapper))
             ->setId('marvin')
             ->setInstance($instance)
         ;
         $modelManager->saveWithoutChildren($session);
 
-        $error = (new Error())
+        $error = (new Error($this->modelWrapper))
             ->setSession($session)
             ->setMessage('no hope')
         ;
 
-        $this->checkSuccessResponse($this->chromecastController->error($modelManager, $error));
+        $this->checkSuccessResponse($this->chromecastController->postError($modelManager, $error));
 
         $this->assertEquals($instance->getId(), $error->getInstanceId());
     }

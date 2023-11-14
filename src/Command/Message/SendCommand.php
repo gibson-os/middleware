@@ -60,7 +60,7 @@ class SendCommand extends AbstractCommand
             try {
                 $this->fcmService->pushMessage($unsentMessage);
             } catch (FcmException $exception) {
-                if ($exception->getCode() !== HttpStatusCode::NOT_FOUND) {
+                if ($exception->getCode() !== HttpStatusCode::NOT_FOUND->value) {
                     throw $exception;
                 }
 

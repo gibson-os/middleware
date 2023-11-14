@@ -34,7 +34,6 @@ class MessageRepository extends AbstractRepository
     }
 
     /**
-     * @throws ClientException
      * @throws JsonException
      * @throws RecordException
      * @throws ReflectionException
@@ -48,7 +47,7 @@ class MessageRepository extends AbstractRepository
                 Message::class,
                 ['`id`' => OrderDirection::DESC],
             )->isNotFound();
-        } catch (SelectError) {
+        } catch (ClientException|SelectError) {
             return false;
         }
     }

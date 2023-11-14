@@ -22,10 +22,10 @@ class MessageControllerTest extends MiddlewareFunctionalTest
         $this->messageController = $this->serviceManager->get(MessageController::class);
     }
 
-    public function testPush(): void
+    public function testPostPush(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -33,7 +33,7 @@ class MessageControllerTest extends MiddlewareFunctionalTest
             ->setExpireDate(new DateTimeImmutable('+1 hour'))
         ;
         $modelManager->saveWithoutChildren($instance);
-        $message = (new Message())
+        $message = (new Message($this->modelWrapper))
             ->setFcmToken('galaxy')
             ->setModule('arthur')
             ->setTask('dent')
@@ -41,7 +41,7 @@ class MessageControllerTest extends MiddlewareFunctionalTest
         ;
 
         $this->checkSuccessResponse(
-            $this->messageController->push(
+            $this->messageController->postPush(
                 $this->serviceManager->get(MessageRepository::class),
                 $modelManager,
                 $message,
@@ -50,10 +50,10 @@ class MessageControllerTest extends MiddlewareFunctionalTest
         );
     }
 
-    public function testPushFcmTokenNotFound(): void
+    public function testPostPushFcmTokenNotFound(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -61,14 +61,14 @@ class MessageControllerTest extends MiddlewareFunctionalTest
             ->setExpireDate(new DateTimeImmutable('+1 hour'))
         ;
         $modelManager->saveWithoutChildren($instance);
-        $message = (new Message())
+        $message = (new Message($this->modelWrapper))
             ->setFcmToken('galaxy')
             ->setModule('arthur')
             ->setTask('dent')
             ->setAction('ford')
         ;
         $modelManager->saveWithoutChildren(
-            (new Message())
+            (new Message($this->modelWrapper))
                 ->setFcmToken('galaxy')
                 ->setModule('arthur')
                 ->setTask('dent')
@@ -79,7 +79,7 @@ class MessageControllerTest extends MiddlewareFunctionalTest
         );
 
         $this->checkErrorResponse(
-            $this->messageController->push(
+            $this->messageController->postPush(
                 $this->serviceManager->get(MessageRepository::class),
                 $modelManager,
                 $message,
@@ -89,10 +89,10 @@ class MessageControllerTest extends MiddlewareFunctionalTest
         );
     }
 
-    public function testPushFcmTokenWithOldMessage(): void
+    public function testPostPushFcmTokenWithOldMessage(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -100,14 +100,14 @@ class MessageControllerTest extends MiddlewareFunctionalTest
             ->setExpireDate(new DateTimeImmutable('+1 hour'))
         ;
         $modelManager->saveWithoutChildren($instance);
-        $message = (new Message())
+        $message = (new Message($this->modelWrapper))
             ->setFcmToken('galaxy')
             ->setModule('arthur')
             ->setTask('dent')
             ->setAction('ford')
         ;
         $modelManager->saveWithoutChildren(
-            (new Message())
+            (new Message($this->modelWrapper))
                 ->setFcmToken('galaxy')
                 ->setModule('arthur')
                 ->setTask('dent')
@@ -117,7 +117,7 @@ class MessageControllerTest extends MiddlewareFunctionalTest
         );
 
         $this->checkSuccessResponse(
-            $this->messageController->push(
+            $this->messageController->postPush(
                 $this->serviceManager->get(MessageRepository::class),
                 $modelManager,
                 $message,

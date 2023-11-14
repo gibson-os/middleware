@@ -22,7 +22,7 @@ class MiddlewareRoleDataTest extends MiddlewareFunctionalTest
         $this->middlewareRoleData = $this->serviceManager->get(MiddlewareRoleData::class);
 
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $modelManager->saveWithoutChildren((new Module())->setName('middleware'));
+        $modelManager->saveWithoutChildren((new Module($this->modelWrapper))->setName('middleware'));
     }
 
     public function testInstall(): void
@@ -35,14 +35,14 @@ class MiddlewareRoleDataTest extends MiddlewareFunctionalTest
 
         $roleRepository = $this->serviceManager->get(RoleRepository::class);
         $role = $roleRepository->getByName('Middleware');
-        $this->assertEquals('middleware', $role->getPermissions()[0]->getModule());
+        $this->assertEquals('middleware', $role->getPermissions()[0]->getModule()->getName());
         $this->assertEquals(6, $role->getPermissions()[0]->getPermission());
     }
 
     public function testInstallAlreadyExists(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $modelManager->saveWithoutChildren((new Role())->setName('Middleware'));
+        $modelManager->saveWithoutChildren((new Role($this->modelWrapper))->setName('Middleware'));
 
         $install = $this->middlewareRoleData->install('galaxy');
 

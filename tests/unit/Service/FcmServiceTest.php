@@ -11,14 +11,14 @@ use GibsonOS\Module\Middleware\Exception\FcmException;
 use GibsonOS\Module\Middleware\Model\Message;
 use GibsonOS\Module\Middleware\Service\CredentialsLoader;
 use GibsonOS\Module\Middleware\Service\FcmService;
+use GibsonOS\Test\Unit\Core\ModelManagerTrait;
 use Prophecy\Argument;
-use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Log\LoggerInterface;
 
 class FcmServiceTest extends Unit
 {
-    use ProphecyTrait;
+    use ModelManagerTrait;
 
     private FcmService $fcmService;
 
@@ -30,6 +30,8 @@ class FcmServiceTest extends Unit
 
     public function _before()
     {
+        $this->loadModelManager();
+
         $this->webService = $this->prophesize(WebService::class);
         $this->logger = $this->prophesize(LoggerInterface::class);
         $this->credentialsLoader = $this->prophesize(CredentialsLoader::class);
@@ -64,7 +66,7 @@ class FcmServiceTest extends Unit
         ;
 
         $this->fcmService->pushMessage(
-            (new Message())
+            (new Message($this->modelWrapper->reveal()))
                 ->setFcmToken('ford')
                 ->setModule('arthur')
                 ->setTask('dent')
@@ -95,7 +97,7 @@ class FcmServiceTest extends Unit
 
         $this->expectException(FcmException::class);
         $this->fcmService->pushMessage(
-            (new Message())
+            (new Message($this->modelWrapper->reveal()))
                 ->setFcmToken('ford')
                 ->setModule('arthur')
                 ->setTask('dent')

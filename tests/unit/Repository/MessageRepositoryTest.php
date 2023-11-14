@@ -5,146 +5,106 @@ namespace GibsonOS\Test\Unit\Middleware\Repository;
 
 use Codeception\Test\Unit;
 use DateTimeImmutable;
-use GibsonOS\Core\Enum\Middleware\Message\Type;
+use GibsonOS\Module\Middleware\Model\Message;
 use GibsonOS\Module\Middleware\Repository\MessageRepository;
-use mysqlDatabase;
-use mysqlRegistry;
-use Prophecy\PhpUnit\ProphecyTrait;
-use Prophecy\Prophecy\ObjectProphecy;
+use GibsonOS\Test\Unit\Core\Repository\RepositoryTrait;
+use MDO\Dto\Query\Where;
+use MDO\Dto\Record;
+use MDO\Dto\Value;
+use MDO\Enum\OrderDirection;
+use MDO\Exception\ClientException;
+use MDO\Query\SelectQuery;
 
 class MessageRepositoryTest extends Unit
 {
-    use ProphecyTrait;
+    use RepositoryTrait;
 
     private MessageRepository $messageRepository;
 
-    private mysqlDatabase|ObjectProphecy $mysqlDatabase;
-
     protected function _before()
     {
-        $this->mysqlDatabase = $this->prophesize(mysqlDatabase::class);
-        mysqlRegistry::getInstance()->reset();
-        mysqlRegistry::getInstance()->set('database', $this->mysqlDatabase->reveal());
+        $this->loadRepository('middleware_message');
 
-        $this->mysqlDatabase->getDatabaseName()
-            ->shouldBeCalledOnce()
-            ->willReturn('marvin')
-        ;
-        $this->mysqlDatabase->sendQuery('SHOW FIELDS FROM `marvin`.`middleware_message`')
-            ->shouldBeCalledOnce()
-            ->willReturn(true)
-        ;
-        $this->mysqlDatabase->fetchRow()
-            ->shouldBeCalledTimes(8)
-            ->willReturn(
-                ['fcmToken', 'varchar(42)', 'NO', '', null, ''],
-                ['type', 'varchar(42)', 'NO', '', null, ''],
-                ['module', 'varchar(42)', 'NO', '', null, ''],
-                ['task', 'varchar(42)', 'NO', '', null, ''],
-                ['action', 'varchar(42)', 'NO', '', null, ''],
-                ['data', 'varchar(42)', 'NO', '', null, ''],
-                ['not_found', 'tinyint(1)', 'NO', '', 0, ''],
-                null
-            )
-        ;
-
-        $this->messageRepository = new MessageRepository('middleware_message');
+        $this->messageRepository = new MessageRepository($this->repositoryWrapper->reveal());
     }
 
     public function testGetUnsentMessages(): void
     {
-        $this->mysqlDatabase->execute(
-            'SELECT `middleware_message`.`fcmToken`, `middleware_message`.`type`, `middleware_message`.`module`, `middleware_message`.`task`, `middleware_message`.`action`, `middleware_message`.`data`, `middleware_message`.`not_found` FROM `marvin`.`middleware_message` WHERE `sent` IS NULL ORDER BY `id`',
-            [],
-        )
-            ->shouldBeCalledOnce()
-            ->willReturn(true)
-        ;
-        $this->mysqlDatabase->fetchAssocList()
-            ->shouldBeCalledOnce()
-            ->willReturn([[
-                'fcmToken' => 'zaphod',
-                'module' => 'galaxy',
-                'task' => 'bebblebrox',
-                'action' => 'arthur',
-                'type' => 'UPDATE',
-                'data' => '[]',
-                'not_found' => 0,
-            ]])
+        $selectQuery = (new SelectQuery($this->table))
+            ->addWhere(new Where('`sent` IS NULL', []))
+            ->setOrder('`id`')
         ;
 
+        $model = $this->loadModel($selectQuery, Message::class, '');
         $message = $this->messageRepository->getUnsentMessages()[0];
+        $date = new DateTimeImmutable();
+        $model->setAdded($date);
+        $message->setAdded($date);
 
-        $this->assertEquals('zaphod', $message->getFcmToken());
-        $this->assertEquals('galaxy', $message->getModule());
-        $this->assertEquals('bebblebrox', $message->getTask());
-        $this->assertEquals('arthur', $message->getAction());
-        $this->assertEquals(Type::UPDATE, $message->getType());
-        $this->assertEquals([], $message->getData());
+        $this->assertEquals($model, $message);
     }
 
     public function testFcmTokenNotFound(): void
     {
-        $this->mysqlDatabase->execute(
-            'SELECT `middleware_message`.`fcmToken`, `middleware_message`.`type`, `middleware_message`.`module`, `middleware_message`.`task`, `middleware_message`.`action`, `middleware_message`.`data`, `middleware_message`.`not_found` FROM `marvin`.`middleware_message` WHERE `fcm_token`=? AND `sent` IS NOT NULL ORDER BY `id` DESC LIMIT 1',
-            ['galaxy'],
-        )
-            ->shouldBeCalledOnce()
-            ->willReturn(true)
-        ;
-        $this->mysqlDatabase->fetchAssocList()
-            ->shouldBeCalledOnce()
-            ->willReturn([[
-                'fcmToken' => 'zaphod',
-                'module' => 'galaxy',
-                'task' => 'bebblebrox',
-                'action' => 'arthur',
-                'type' => 'UPDATE',
-                'data' => '[]',
-                'not_found' => 0,
-            ]])
+        $selectQuery = (new SelectQuery($this->table, 't'))
+            ->addWhere(new Where('`fcm_token`=? AND `sent` IS NOT NULL', ['galaxy']))
+            ->setOrder('`id`', OrderDirection::DESC)
+            ->setLimit(1)
         ;
 
-        $this->assertFalse($this->messageRepository->fcmTokenNotFound('galaxy'));
+        $this->loadModel($selectQuery, Message::class)->setNotFound(true);
+        $this->assertTrue($this->messageRepository->fcmTokenNotFound('galaxy'));
     }
 
     public function testFcmTokenFound(): void
     {
-        $this->mysqlDatabase->execute(
-            'SELECT `middleware_message`.`fcmToken`, `middleware_message`.`type`, `middleware_message`.`module`, `middleware_message`.`task`, `middleware_message`.`action`, `middleware_message`.`data`, `middleware_message`.`not_found` FROM `marvin`.`middleware_message` WHERE `fcm_token`=? AND `sent` IS NOT NULL ORDER BY `id` DESC LIMIT 1',
-            ['galaxy'],
-        )
-            ->shouldBeCalledOnce()
-            ->willReturn(true)
-        ;
-        $this->mysqlDatabase->fetchAssocList()
-            ->shouldBeCalledOnce()
-            ->willReturn([[
-                'fcmToken' => 'zaphod',
-                'module' => 'galaxy',
-                'task' => 'bebblebrox',
-                'action' => 'arthur',
-                'type' => 'UPDATE',
-                'data' => '[]',
-                'not_found' => 1,
-            ]])
+        $selectQuery = (new SelectQuery($this->table, 't'))
+            ->addWhere(new Where('`fcm_token`=? AND `sent` IS NOT NULL', ['galaxy']))
+            ->setOrder('`id`', OrderDirection::DESC)
+            ->setLimit(1)
         ;
 
-        $this->assertTrue($this->messageRepository->fcmTokenNotFound('galaxy'));
+        $this->loadModel($selectQuery, Message::class)
+            ->setNotFound(false)
+            ->setAdded(new DateTimeImmutable())
+        ;
+        $this->assertFalse($this->messageRepository->fcmTokenNotFound('galaxy'));
     }
 
     public function testFcmTokenMessageNotFound(): void
     {
-        $this->mysqlDatabase->execute(
-            'SELECT `middleware_message`.`fcmToken`, `middleware_message`.`type`, `middleware_message`.`module`, `middleware_message`.`task`, `middleware_message`.`action`, `middleware_message`.`data`, `middleware_message`.`not_found` FROM `marvin`.`middleware_message` WHERE `fcm_token`=? AND `sent` IS NOT NULL ORDER BY `id` DESC LIMIT 1',
-            ['galaxy'],
-        )
-            ->shouldBeCalledOnce()
-            ->willReturn(false)
+        $selectQuery = (new SelectQuery($this->table, 't'))
+            ->addWhere(new Where('`fcm_token`=? AND `sent` IS NOT NULL', ['galaxy']))
+            ->setOrder('`id`', OrderDirection::DESC)
+            ->setLimit(1)
         ;
-        $this->mysqlDatabase->error()
+
+        $this->repositoryWrapper->getModelWrapper()
             ->shouldBeCalledOnce()
-            ->willReturn('no hope')
+            ->willReturn($this->modelWrapper)
+        ;
+        $this->tableManager->getTable($this->table->getTableName())
+            ->shouldBeCalledOnce()
+            ->willReturn($this->table)
+        ;
+        $this->repositoryWrapper->getTableManager()
+            ->shouldBeCalledOnce()
+            ->willReturn($this->tableManager)
+        ;
+        $this->childrenQuery->extend($selectQuery, Message::class, [])
+            ->willReturn($selectQuery)
+        ;
+        $this->repositoryWrapper->getChildrenQuery()
+            ->shouldBeCalledOnce()
+            ->willReturn($this->childrenQuery->reveal())
+        ;
+        $this->client->execute($selectQuery)
+            ->shouldBeCalledOnce()
+            ->willThrow(ClientException::class)
+        ;
+        $this->repositoryWrapper->getClient()
+            ->shouldBeCalledOnce()
+            ->willReturn($this->client->reveal())
         ;
 
         $this->assertFalse($this->messageRepository->fcmTokenNotFound('galaxy'));
@@ -153,17 +113,11 @@ class MessageRepositoryTest extends Unit
     public function testCountSentMessagesSince(): void
     {
         $date = new DateTimeImmutable();
-        $this->mysqlDatabase->execute(
-            'SELECT COUNT(`id`) FROM `marvin`.`middleware_message` WHERE `sent`>=?',
-            [$date->format('Y-m-d H:i:s')],
-        )
-            ->shouldBeCalledOnce()
-            ->willReturn(false)
+        $selectQuery = (new SelectQuery($this->table))
+            ->addWhere(new Where('`sent`>=?', [$date->format('Y-m-d H:i:s')]))
+            ->setSelects(['count' => 'COUNT(`id`)'])
         ;
-        $this->mysqlDatabase->fetchResult()
-            ->shouldBeCalledOnce()
-            ->willReturn(42)
-        ;
+        $this->loadAggregation($selectQuery, new Record(['count' => new Value(42)]));
 
         $this->assertEquals(42, $this->messageRepository->countSentMessagesSince($date));
     }

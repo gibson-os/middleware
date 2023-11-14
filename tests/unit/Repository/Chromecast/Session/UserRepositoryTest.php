@@ -4,63 +4,42 @@ declare(strict_types=1);
 namespace GibsonOS\Test\Unit\Middleware\Repository\Chromecast\Session;
 
 use Codeception\Test\Unit;
+use DateTimeImmutable;
 use GibsonOS\Module\Middleware\Model\Chromecast\Session;
+use GibsonOS\Module\Middleware\Model\Chromecast\Session\User;
 use GibsonOS\Module\Middleware\Repository\Chromecast\Session\UserRepository;
-use mysqlDatabase;
-use mysqlRegistry;
-use Prophecy\PhpUnit\ProphecyTrait;
-use Prophecy\Prophecy\ObjectProphecy;
+use GibsonOS\Test\Unit\Core\Repository\RepositoryTrait;
+use MDO\Dto\Query\Where;
+use MDO\Query\SelectQuery;
 
 class UserRepositoryTest extends Unit
 {
-    use ProphecyTrait;
+    use RepositoryTrait;
 
     private UserRepository $userRepository;
 
-    private mysqlDatabase|ObjectProphecy $mysqlDatabase;
-
     protected function _before()
     {
-        $this->mysqlDatabase = $this->prophesize(mysqlDatabase::class);
-        mysqlRegistry::getInstance()->reset();
-        mysqlRegistry::getInstance()->set('database', $this->mysqlDatabase->reveal());
+        $this->loadRepository('middleware_chromecast_session_user');
 
-        $this->userRepository = new UserRepository();
+        $this->userRepository = new UserRepository($this->repositoryWrapper->reveal());
     }
 
     public function testGetFirst(): void
     {
-        $this->mysqlDatabase->getDatabaseName()
-            ->shouldBeCalledOnce()
-            ->willReturn('marvin')
-        ;
-        $this->mysqlDatabase->sendQuery('SHOW FIELDS FROM `marvin`.`middleware_chromecast_session_user`')
-            ->shouldBeCalledOnce()
-            ->willReturn(true)
-        ;
-        $this->mysqlDatabase->fetchRow()
-            ->shouldBeCalledTimes(2)
-            ->willReturn(
-                ['user_id', 'bigint(42)', 'NO', '', null, ''],
-                null
-            )
-        ;
-        $this->mysqlDatabase->execute(
-            'SELECT `middleware_chromecast_session_user`.`user_id` FROM `marvin`.`middleware_chromecast_session_user` WHERE `session_id`=? ORDER BY `added` LIMIT 1',
-            ['galaxy'],
-        )
-            ->shouldBeCalledOnce()
-            ->willReturn(true)
-        ;
-        $this->mysqlDatabase->fetchAssocList()
-            ->shouldBeCalledOnce()
-            ->willReturn([[
-                'user_id' => 42,
-            ]])
+        $selectQuery = (new SelectQuery($this->table, 't'))
+            ->addWhere(new Where('`session_id`=?', ['galaxy']))
+            ->setOrder('`added`')
+            ->setLimit(1)
         ;
 
-        $session = (new Session())->setId('galaxy');
+        $session = (new Session($this->modelWrapper->reveal()))->setId('galaxy');
+        $model = $this->loadModel($selectQuery, User::class);
+        $user = $this->userRepository->getFirst($session);
+        $date = new DateTimeImmutable();
+        $model->setAdded($date);
+        $user->setAdded($date);
 
-        $this->assertEquals(42, $this->userRepository->getFirst($session)->getUserId());
+        $this->assertEquals($model, $user);
     }
 }

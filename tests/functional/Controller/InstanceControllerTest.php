@@ -7,6 +7,7 @@ use DateTimeImmutable;
 use GibsonOS\Core\Dto\Web\Body;
 use GibsonOS\Core\Dto\Web\Request;
 use GibsonOS\Core\Dto\Web\Response;
+use GibsonOS\Core\Enum\HttpStatusCode;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\Role;
 use GibsonOS\Core\Service\RequestService;
@@ -34,10 +35,10 @@ class InstanceControllerTest extends MiddlewareFunctionalTest
         $this->instanceController = $this->serviceManager->get(InstanceController::class);
     }
 
-    public function testNewToken(): void
+    public function testPostNewToken(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -48,13 +49,13 @@ class InstanceControllerTest extends MiddlewareFunctionalTest
 
         $response = new Response(
             new Request('http://arthur.dent/core/middleware/confirm'),
-            200,
+            HttpStatusCode::OK,
             [],
             (new Body())->setContent('{"data": "prefect", "total": 42}', 35),
             ''
         );
 
-        $this->webService->post(Argument::any())
+        $this->webService->request(Argument::any())
             ->shouldBeCalledOnce()
             ->willReturn($response)
         ;
@@ -64,7 +65,7 @@ class InstanceControllerTest extends MiddlewareFunctionalTest
         ;
 
         $this->checkSuccessResponse(
-            $this->instanceController->newToken(
+            $this->instanceController->postNewToken(
                 $instance,
                 $this->serviceManager->get(InstanceRepository::class),
                 $this->serviceManager->get(InstanceService::class),
@@ -75,10 +76,10 @@ class InstanceControllerTest extends MiddlewareFunctionalTest
         $this->assertNotEquals('ford', $instance->getToken());
     }
 
-    public function testNewTokenAddedSlash(): void
+    public function testPostNewTokenAddedSlash(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent')
             ->setToken('ford')
@@ -89,13 +90,13 @@ class InstanceControllerTest extends MiddlewareFunctionalTest
 
         $response = new Response(
             new Request('http://arthur.dent/core/middleware/confirm'),
-            200,
+            HttpStatusCode::OK,
             [],
             (new Body())->setContent('{"data": "prefect", "total": 42}', 35),
             ''
         );
 
-        $this->webService->post(Argument::any())
+        $this->webService->request(Argument::any())
             ->shouldBeCalledOnce()
             ->willReturn($response)
         ;
@@ -105,7 +106,7 @@ class InstanceControllerTest extends MiddlewareFunctionalTest
         ;
 
         $this->checkSuccessResponse(
-            $this->instanceController->newToken(
+            $this->instanceController->postNewToken(
                 $instance,
                 $this->serviceManager->get(InstanceRepository::class),
                 $this->serviceManager->get(InstanceService::class),
@@ -117,10 +118,10 @@ class InstanceControllerTest extends MiddlewareFunctionalTest
         $this->assertEquals('http://arthur.dent/', $instance->getUrl());
     }
 
-    public function testNewTokenInvalidToken(): void
+    public function testPostNewTokenInvalidToken(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -135,7 +136,7 @@ class InstanceControllerTest extends MiddlewareFunctionalTest
         ;
 
         $this->checkErrorResponse(
-            $this->instanceController->newToken(
+            $this->instanceController->postNewToken(
                 $instance,
                 $this->serviceManager->get(InstanceRepository::class),
                 $this->serviceManager->get(InstanceService::class),
@@ -146,10 +147,10 @@ class InstanceControllerTest extends MiddlewareFunctionalTest
         $this->assertEquals('ford', $instance->getToken());
     }
 
-    public function testNewTokenInvalidInstance(): void
+    public function testPostNewTokenInvalidInstance(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -158,7 +159,7 @@ class InstanceControllerTest extends MiddlewareFunctionalTest
         ;
         $modelManager->saveWithoutChildren($instance);
         $modelManager->saveWithoutChildren(
-            (new Instance())
+            (new Instance($this->modelWrapper))
                 ->setUser($this->addUser())
                 ->setUrl('http://ford.prefect/')
                 ->setToken('arthur')
@@ -172,7 +173,7 @@ class InstanceControllerTest extends MiddlewareFunctionalTest
         ;
 
         $this->checkErrorResponse(
-            $this->instanceController->newToken(
+            $this->instanceController->postNewToken(
                 $instance,
                 $this->serviceManager->get(InstanceRepository::class),
                 $this->serviceManager->get(InstanceService::class),
@@ -184,30 +185,30 @@ class InstanceControllerTest extends MiddlewareFunctionalTest
         $this->assertEquals('ford', $instance->getToken());
     }
 
-    public function testNewTokenNewInstance(): void
+    public function testPostNewTokenNewInstance(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUrl('http://arthur.dent/')
             ->setSecret('prefect')
         ;
-        $modelManager->saveWithoutChildren((new Role())->setName('Middleware'));
+        $modelManager->saveWithoutChildren((new Role($this->modelWrapper))->setName('Middleware'));
 
         $response = new Response(
             new Request('http://arthur.dent/core/middleware/confirm'),
-            200,
+            HttpStatusCode::OK,
             [],
             (new Body())->setContent('{"data": "prefect", "total": 42}', 35),
             ''
         );
 
-        $this->webService->post(Argument::any())
+        $this->webService->request(Argument::any())
             ->shouldBeCalledOnce()
             ->willReturn($response)
         ;
 
         $this->checkSuccessResponse(
-            $this->instanceController->newToken(
+            $this->instanceController->postNewToken(
                 $instance,
                 $this->serviceManager->get(InstanceRepository::class),
                 $this->serviceManager->get(InstanceService::class),

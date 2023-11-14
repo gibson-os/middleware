@@ -12,7 +12,6 @@ use GibsonOS\Core\Enum\HttpMethod;
 use GibsonOS\Core\Enum\HttpStatusCode;
 use GibsonOS\Core\Exception\Repository\SelectError;
 use GibsonOS\Core\Exception\UserError;
-use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\Role;
 use GibsonOS\Core\Model\User;
 use GibsonOS\Core\Repository\RoleRepository;
@@ -22,15 +21,13 @@ use GibsonOS\Module\Middleware\Exception\InstanceException;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Repository\InstanceRepository;
 use GibsonOS\Module\Middleware\Service\InstanceService;
-use mysqlDatabase;
-use mysqlRegistry;
+use GibsonOS\Test\Unit\Core\ModelManagerTrait;
 use Prophecy\Argument;
-use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 
 class InstanceServiceTest extends Unit
 {
-    use ProphecyTrait;
+    use ModelManagerTrait;
 
     private InstanceService $instanceService;
 
@@ -42,16 +39,14 @@ class InstanceServiceTest extends Unit
 
     private ObjectProphecy|SessionService $sessionService;
 
-    private ObjectProphecy|ModelManager $modelManager;
-
     protected function _before(): void
     {
+        $this->loadModelManager();
+
         $this->webService = $this->prophesize(WebService::class);
         $this->instanceRepository = $this->prophesize(InstanceRepository::class);
         $this->roleRepository = $this->prophesize(RoleRepository::class);
         $this->sessionService = $this->prophesize(SessionService::class);
-        $this->modelManager = $this->prophesize(ModelManager::class);
-        mysqlRegistry::getInstance()->set('database', $this->prophesize(mysqlDatabase::class)->reveal());
 
         $this->instanceService = new InstanceService(
             $this->instanceRepository->reveal(),
@@ -59,13 +54,14 @@ class InstanceServiceTest extends Unit
             $this->sessionService->reveal(),
             $this->modelManager->reveal(),
             $this->webService->reveal(),
+            $this->modelWrapper->reveal(),
         );
     }
 
     public function testTokenLogin(): void
     {
-        $user = new User();
-        $instance = (new Instance())
+        $user = new User($this->modelWrapper->reveal());
+        $instance = (new Instance($this->modelWrapper->reveal()))
             ->setExpireDate(new DateTimeImmutable('+1 second'))
             ->setUser($user)
         ;
@@ -82,8 +78,8 @@ class InstanceServiceTest extends Unit
 
     public function testTokenLoginExpired(): void
     {
-        $user = new User();
-        $instance = (new Instance())
+        $user = new User($this->modelWrapper->reveal());
+        $instance = (new Instance($this->modelWrapper->reveal()))
             ->setExpireDate(new DateTimeImmutable('-1 second'))
             ->setUser($user)
         ;
@@ -110,8 +106,8 @@ class InstanceServiceTest extends Unit
 
     public function testAddInstanceUser(): void
     {
-        $role = new Role();
-        $instance = (new Instance())
+        $role = new Role($this->modelWrapper->reveal());
+        $instance = (new Instance($this->modelWrapper->reveal()))
             ->setUrl('arthur://dent')
         ;
         $this->roleRepository->getByName('Middleware')
@@ -131,7 +127,7 @@ class InstanceServiceTest extends Unit
     public function testSetToken(): void
     {
         $expireDate = new DateTimeImmutable('-1 minute');
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper->reveal()))
             ->setToken('galaxy')
             ->setExpireDate($expireDate)
         ;
@@ -144,7 +140,7 @@ class InstanceServiceTest extends Unit
 
     public function testSendRequest(): void
     {
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper->reveal()))
             ->setUrl('arthur://dent/')
             ->setSecret('zaphod')
         ;
@@ -182,7 +178,7 @@ class InstanceServiceTest extends Unit
 
     public function testSendRequestWrongStatusCode(): void
     {
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper->reveal()))
             ->setUrl('arthur://dent/')
             ->setSecret('zaphod')
         ;

@@ -1,13 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Test\Unit\Middleware\Command\Message;
+namespace GibsonOS\Test\Functional\Middleware\Command\Message;
 
 use DateTime;
 use DateTimeImmutable;
 use GibsonOS\Core\Dto\Web\Body;
 use GibsonOS\Core\Dto\Web\Request;
 use GibsonOS\Core\Dto\Web\Response;
+use GibsonOS\Core\Enum\HttpStatusCode;
 use GibsonOS\Core\Enum\Middleware\Message\Vibrate;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\DateTimeService;
@@ -18,8 +19,12 @@ use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Model\Message;
 use GibsonOS\Module\Middleware\Service\CredentialsLoader;
 use GibsonOS\Test\Functional\Middleware\MiddlewareFunctionalTest;
-use mysqlDatabase;
-use mysqlTable;
+use MDO\Client;
+use MDO\Dto\Query\Where;
+use MDO\Dto\Record;
+use MDO\Dto\Table;
+use MDO\Manager\TableManager;
+use MDO\Query\SelectQuery;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 
@@ -30,6 +35,10 @@ class SendCommandTest extends MiddlewareFunctionalTest
     private CredentialsLoader|ObjectProphecy $credentialsLoader;
 
     private DateTimeService|ObjectProphecy $dateTimeService;
+
+    private Table $table;
+
+    private Client $client;
 
     protected function _before(): void
     {
@@ -44,13 +53,17 @@ class SendCommandTest extends MiddlewareFunctionalTest
         $this->dateTimeService = $this->prophesize(DateTimeService::class);
         $this->serviceManager->setService(DateTimeService::class, $this->dateTimeService->reveal());
 
+        $this->client = $this->serviceManager->get(Client::class);
+        $tableManager = $this->serviceManager->get(TableManager::class);
+        $this->table = $tableManager->getTable('middleware_message');
+
         $this->sendCommand = $this->serviceManager->get(SendCommand::class);
     }
 
     public function testExecute(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -71,7 +84,7 @@ class SendCommandTest extends MiddlewareFunctionalTest
         ;
 
         $modelManager->saveWithoutChildren(
-            (new Message())
+            (new Message($this->modelWrapper))
                 ->setFcmToken('marvin')
                 ->setModule('arthur')
                 ->setTask('dent')
@@ -90,7 +103,7 @@ class SendCommandTest extends MiddlewareFunctionalTest
         ;
         $response = new Response(
             new Request('https://fcm.googleapis.com/v1/projects/messages:send'),
-            200,
+            HttpStatusCode::OK,
             [],
             (new Body())->setContent('[]', 2),
             ''
@@ -102,25 +115,26 @@ class SendCommandTest extends MiddlewareFunctionalTest
 
         $this->assertEquals(0, $this->sendCommand->execute());
 
-        $messageTable = (new mysqlTable($this->serviceManager->get(mysqlDatabase::class), 'middleware_message'))
-            ->setWhere('`id`=?')
-            ->addWhereParameter(1)
+        $selectQuery = (new SelectQuery($this->table))
+            ->addWhere(new Where('`id`=?', [1]))
         ;
-        $messageTable->selectPrepared();
+        $result = $this->client->execute($selectQuery);
+        /** @var Record $record */
+        $record = $result->iterateRecords()->current();
 
-        $this->assertNotNull($messageTable->sent->getValue());
-        $this->assertNull($messageTable->token->getValue());
-        $this->assertNull($messageTable->title->getValue());
-        $this->assertNull($messageTable->body->getValue());
-        $this->assertEquals('[]', $messageTable->data->getValue());
-        $this->assertNull($messageTable->vibrate->getValue());
-        $this->assertEquals(0, $messageTable->not_found->getValue());
+        $this->assertNotNull($record->get('sent')->getValue());
+        $this->assertNull($record->get('token')->getValue());
+        $this->assertNull($record->get('title')->getValue());
+        $this->assertNull($record->get('body')->getValue());
+        $this->assertEquals('[]', $record->get('data')->getValue());
+        $this->assertNull($record->get('vibrate')->getValue());
+        $this->assertEquals(0, $record->get('not_found')->getValue());
     }
 
     public function testExecuteFcmException(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -141,7 +155,7 @@ class SendCommandTest extends MiddlewareFunctionalTest
         ;
 
         $modelManager->saveWithoutChildren(
-            (new Message())
+            (new Message($this->modelWrapper))
                 ->setFcmToken('marvin')
                 ->setModule('arthur')
                 ->setTask('dent')
@@ -160,7 +174,7 @@ class SendCommandTest extends MiddlewareFunctionalTest
         ;
         $response = new Response(
             new Request('https://fcm.googleapis.com/v1/projects/messages:send'),
-            200,
+            HttpStatusCode::OK,
             [],
             (new Body())->setContent('{"error":{"message":"no hope", "code":500}}', 43),
             ''
@@ -180,25 +194,26 @@ class SendCommandTest extends MiddlewareFunctionalTest
 
         $this->assertEquals('no hope', $message);
 
-        $messageTable = (new mysqlTable($this->serviceManager->get(mysqlDatabase::class), 'middleware_message'))
-            ->setWhere('`id`=?')
-            ->addWhereParameter(1)
+        $selectQuery = (new SelectQuery($this->table))
+            ->addWhere(new Where('`id`=?', [1]))
         ;
-        $messageTable->selectPrepared();
+        $result = $this->client->execute($selectQuery);
+        /** @var Record $record */
+        $record = $result->iterateRecords()->current();
 
-        $this->assertNull($messageTable->sent->getValue());
-        $this->assertEquals('no hope', $messageTable->token->getValue());
-        $this->assertEquals('galaxy', $messageTable->title->getValue());
-        $this->assertEquals('zaphod', $messageTable->body->getValue());
-        $this->assertEquals('{"prefect":"bebblebrox"}', $messageTable->data->getValue());
-        $this->assertEquals('SOS', $messageTable->vibrate->getValue());
-        $this->assertEquals(0, $messageTable->not_found->getValue());
+        $this->assertNull($record->get('sent')->getValue());
+        $this->assertEquals('no hope', $record->get('token')->getValue());
+        $this->assertEquals('galaxy', $record->get('title')->getValue());
+        $this->assertEquals('zaphod', $record->get('body')->getValue());
+        $this->assertEquals('{"prefect":"bebblebrox"}', $record->get('data')->getValue());
+        $this->assertEquals('SOS', $record->get('vibrate')->getValue());
+        $this->assertEquals(0, $record->get('not_found')->getValue());
     }
 
     public function testExecuteFcmExceptionNotFound(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -219,7 +234,7 @@ class SendCommandTest extends MiddlewareFunctionalTest
         ;
 
         $modelManager->saveWithoutChildren(
-            (new Message())
+            (new Message($this->modelWrapper))
                 ->setFcmToken('marvin')
                 ->setModule('arthur')
                 ->setTask('dent')
@@ -238,7 +253,7 @@ class SendCommandTest extends MiddlewareFunctionalTest
         ;
         $response = new Response(
             new Request('https://fcm.googleapis.com/v1/projects/messages:send'),
-            200,
+            HttpStatusCode::OK,
             [],
             (new Body())->setContent('{"error":{"message":"no hope", "code":404}}', 43),
             ''
@@ -250,19 +265,20 @@ class SendCommandTest extends MiddlewareFunctionalTest
 
         $this->assertEquals(0, $this->sendCommand->execute());
 
-        $messageTable = (new mysqlTable($this->serviceManager->get(mysqlDatabase::class), 'middleware_message'))
-            ->setWhere('`id`=?')
-            ->addWhereParameter(1)
+        $selectQuery = (new SelectQuery($this->table))
+            ->addWhere(new Where('`id`=?', [1]))
         ;
-        $messageTable->selectPrepared();
+        $result = $this->client->execute($selectQuery);
+        /** @var Record $record */
+        $record = $result->iterateRecords()->current();
 
-        $this->assertNotNull($messageTable->sent->getValue());
-        $this->assertNull($messageTable->token->getValue());
-        $this->assertNull($messageTable->title->getValue());
-        $this->assertNull($messageTable->body->getValue());
-        $this->assertEquals('[]', $messageTable->data->getValue());
-        $this->assertNull($messageTable->vibrate->getValue());
-        $this->assertEquals(1, $messageTable->not_found->getValue());
+        $this->assertNotNull($record->get('sent')->getValue());
+        $this->assertNull($record->get('token')->getValue());
+        $this->assertNull($record->get('title')->getValue());
+        $this->assertNull($record->get('body')->getValue());
+        $this->assertEquals('[]', $record->get('data')->getValue());
+        $this->assertNull($record->get('vibrate')->getValue());
+        $this->assertEquals(1, $record->get('not_found')->getValue());
     }
 
     public function testExecuteEmpty(): void
@@ -273,7 +289,7 @@ class SendCommandTest extends MiddlewareFunctionalTest
     public function testExecuteReachedSecondLimit(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -289,7 +305,7 @@ class SendCommandTest extends MiddlewareFunctionalTest
         ;
 
         $modelManager->saveWithoutChildren(
-            (new Message())
+            (new Message($this->modelWrapper))
                 ->setFcmToken('marvin')
                 ->setModule('arthur')
                 ->setTask('dent')
@@ -304,7 +320,7 @@ class SendCommandTest extends MiddlewareFunctionalTest
 
         for ($i = 0; $i < 250; ++$i) {
             $modelManager->saveWithoutChildren(
-                (new Message())
+                (new Message($this->modelWrapper))
                     ->setFcmToken('marvin')
                     ->setModule('arthur')
                     ->setTask('dent')
@@ -316,25 +332,26 @@ class SendCommandTest extends MiddlewareFunctionalTest
 
         $this->assertEquals(255, $this->sendCommand->execute());
 
-        $messageTable = (new mysqlTable($this->serviceManager->get(mysqlDatabase::class), 'middleware_message'))
-            ->setWhere('`id`=?')
-            ->addWhereParameter(1)
+        $selectQuery = (new SelectQuery($this->table))
+            ->addWhere(new Where('`id`=?', [1]))
         ;
-        $messageTable->selectPrepared();
+        $result = $this->client->execute($selectQuery);
+        /** @var Record $record */
+        $record = $result->iterateRecords()->current();
 
-        $this->assertNull($messageTable->sent->getValue());
-        $this->assertEquals('no hope', $messageTable->token->getValue());
-        $this->assertEquals('galaxy', $messageTable->title->getValue());
-        $this->assertEquals('zaphod', $messageTable->body->getValue());
-        $this->assertEquals('{"prefect":"bebblebrox"}', $messageTable->data->getValue());
-        $this->assertEquals('SOS', $messageTable->vibrate->getValue());
-        $this->assertEquals(0, $messageTable->not_found->getValue());
+        $this->assertNull($record->get('sent')->getValue());
+        $this->assertEquals('no hope', $record->get('token')->getValue());
+        $this->assertEquals('galaxy', $record->get('title')->getValue());
+        $this->assertEquals('zaphod', $record->get('body')->getValue());
+        $this->assertEquals('{"prefect":"bebblebrox"}', $record->get('data')->getValue());
+        $this->assertEquals('SOS', $record->get('vibrate')->getValue());
+        $this->assertEquals(0, $record->get('not_found')->getValue());
     }
 
     public function testExecuteReachedHourLimit(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -355,7 +372,7 @@ class SendCommandTest extends MiddlewareFunctionalTest
         ;
 
         $modelManager->saveWithoutChildren(
-            (new Message())
+            (new Message($this->modelWrapper))
                 ->setFcmToken('marvin')
                 ->setModule('arthur')
                 ->setTask('dent')
@@ -371,7 +388,7 @@ class SendCommandTest extends MiddlewareFunctionalTest
         for ($i = 0; $i < 1000; ++$i) {
             for ($j = 0; $j < 5; ++$j) {
                 $modelManager->saveWithoutChildren(
-                    (new Message())
+                    (new Message($this->modelWrapper))
                         ->setFcmToken('marvin')
                         ->setModule('arthur')
                         ->setTask('dent')
@@ -384,18 +401,19 @@ class SendCommandTest extends MiddlewareFunctionalTest
 
         $this->assertEquals(255, $this->sendCommand->execute());
 
-        $messageTable = (new mysqlTable($this->serviceManager->get(mysqlDatabase::class), 'middleware_message'))
-            ->setWhere('`id`=?')
-            ->addWhereParameter(1)
+        $selectQuery = (new SelectQuery($this->table))
+            ->addWhere(new Where('`id`=?', [1]))
         ;
-        $messageTable->selectPrepared();
+        $result = $this->client->execute($selectQuery);
+        /** @var Record $record */
+        $record = $result->iterateRecords()->current();
 
-        $this->assertNull($messageTable->sent->getValue());
-        $this->assertEquals('no hope', $messageTable->token->getValue());
-        $this->assertEquals('galaxy', $messageTable->title->getValue());
-        $this->assertEquals('zaphod', $messageTable->body->getValue());
-        $this->assertEquals('{"prefect":"bebblebrox"}', $messageTable->data->getValue());
-        $this->assertEquals('SOS', $messageTable->vibrate->getValue());
-        $this->assertEquals(0, $messageTable->not_found->getValue());
+        $this->assertNull($record->get('sent')->getValue());
+        $this->assertEquals('no hope', $record->get('token')->getValue());
+        $this->assertEquals('galaxy', $record->get('title')->getValue());
+        $this->assertEquals('zaphod', $record->get('body')->getValue());
+        $this->assertEquals('{"prefect":"bebblebrox"}', $record->get('data')->getValue());
+        $this->assertEquals('SOS', $record->get('vibrate')->getValue());
+        $this->assertEquals(0, $record->get('not_found')->getValue());
     }
 }

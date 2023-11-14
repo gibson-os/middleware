@@ -12,15 +12,13 @@ use GibsonOS\Module\Middleware\Attribute\GetInstance;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Repository\InstanceRepository;
 use GibsonOS\Module\Middleware\Service\Attribute\InstanceAttribute;
-use mysqlDatabase;
-use mysqlRegistry;
-use Prophecy\PhpUnit\ProphecyTrait;
+use GibsonOS\Test\Unit\Core\ModelManagerTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use ReflectionFunction;
 
 class InstanceAttributeTest extends Unit
 {
-    use ProphecyTrait;
+    use ModelManagerTrait;
 
     private InstanceAttribute $instanceAttribute;
 
@@ -30,9 +28,10 @@ class InstanceAttributeTest extends Unit
 
     protected function _before()
     {
+        $this->loadModelManager();
+
         $this->instanceRepository = $this->prophesize(InstanceRepository::class);
         $this->requestService = $this->prophesize(RequestService::class);
-        mysqlRegistry::getInstance()->set('database', $this->prophesize(mysqlDatabase::class)->reveal());
 
         $this->instanceAttribute = new InstanceAttribute(
             $this->requestService->reveal(),
@@ -47,7 +46,7 @@ class InstanceAttributeTest extends Unit
             ->shouldBeCalledOnce()
             ->willReturn('marvin')
         ;
-        $instance = new Instance();
+        $instance = new Instance($this->modelWrapper->reveal());
         $this->instanceRepository->getByToken('marvin')
             ->shouldBeCalledOnce()
             ->willReturn($instance)

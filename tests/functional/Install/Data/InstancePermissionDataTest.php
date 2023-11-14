@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace GibsonOS\Test\Unit\Middleware\Install\Data;
+namespace GibsonOS\Test\Functional\Middleware\Install\Data;
 
 use GibsonOS\Core\Dto\Install\Success;
+use GibsonOS\Core\Enum\HttpMethod;
 use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Model\Action;
 use GibsonOS\Core\Model\Module;
@@ -24,15 +25,38 @@ class InstancePermissionDataTest extends MiddlewareFunctionalTest
         $this->instancePermissionData = $this->serviceManager->get(InstancePermissionData::class);
 
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $module = (new Module())->setName('middleware');
+        $module = (new Module($this->modelWrapper))->setName('middleware');
         $modelManager->saveWithoutChildren($module);
-        $task = (new Task())->setName('instance')->setModule($module);
+        $task = (new Task($this->modelWrapper))->setName('instance')->setModule($module);
         $modelManager->saveWithoutChildren($task);
-        $modelManager->saveWithoutChildren((new Action())->setName('newToken')->setModule($module)->setTask($task));
+        $modelManager->saveWithoutChildren(
+            (new Action($this->modelWrapper))
+                ->setName('newToken')
+                ->setModule($module)->setTask($task)
+                ->setMethod(HttpMethod::GET)
+        );
     }
 
     public function testInstall(): void
     {
+        $modelManager = $this->serviceManager->get(ModelManager::class);
+        $module = (new Module($this->modelWrapper))
+            ->setName('middleware')
+        ;
+        $modelManager->saveWithoutChildren($module);
+        $task = (new Task($this->modelWrapper))
+            ->setName('instance')
+            ->setModule($module)
+        ;
+        $modelManager->saveWithoutChildren($task);
+        $action = (new Action($this->modelWrapper))
+            ->setName('newToken')
+            ->setMethod(HttpMethod::POST)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($action);
+
         $install = $this->instancePermissionData->install('galaxy');
 
         /** @var Success $success */
@@ -43,18 +67,34 @@ class InstancePermissionDataTest extends MiddlewareFunctionalTest
 
         $this->assertEquals(
             4,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'instance', 'newToken')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $action)->getPermission()
         );
     }
 
     public function testInstallAlreadyExists(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
+        $module = (new Module($this->modelWrapper))
+            ->setName('middleware')
+        ;
+        $modelManager->saveWithoutChildren($module);
+        $task = (new Task($this->modelWrapper))
+            ->setName('instance')
+            ->setModule($module)
+        ;
+        $modelManager->saveWithoutChildren($task);
+        $action = (new Action($this->modelWrapper))
+            ->setName('newToken')
+            ->setMethod(HttpMethod::POST)
+            ->setModule($module)
+            ->setTask($task)
+        ;
+        $modelManager->saveWithoutChildren($action);
         $modelManager->saveWithoutChildren(
-            (new Permission())
-                ->setModule('middleware')
-                ->setTask('instance')
-                ->setAction('newToken')
+            (new Permission($this->modelWrapper))
+                ->setModule($module)
+                ->setTask($task)
+                ->setAction($action)
                 ->setPermission(1)
         );
 
@@ -68,7 +108,7 @@ class InstancePermissionDataTest extends MiddlewareFunctionalTest
 
         $this->assertEquals(
             1,
-            $permissionRepository->getByModuleTaskAndAction('middleware', 'instance', 'newToken')->getPermission()
+            $permissionRepository->getByModuleTaskAndAction($module, $task, $action)->getPermission(),
         );
     }
 

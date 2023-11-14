@@ -11,8 +11,10 @@ use GibsonOS\Module\Middleware\Command\Chromecast\RemoveOldSessionsCommand;
 use GibsonOS\Module\Middleware\Model\Chromecast\Session;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Test\Functional\Middleware\MiddlewareFunctionalTest;
-use mysqlDatabase;
-use mysqlTable;
+use MDO\Client;
+use MDO\Dto\Query\Where;
+use MDO\Manager\TableManager;
+use MDO\Query\SelectQuery;
 use Prophecy\Prophecy\ObjectProphecy;
 
 class RemoveOldSessionsCommandTest extends MiddlewareFunctionalTest
@@ -34,7 +36,7 @@ class RemoveOldSessionsCommandTest extends MiddlewareFunctionalTest
     public function testExecute(): void
     {
         $modelManager = $this->serviceManager->get(ModelManager::class);
-        $instance = (new Instance())
+        $instance = (new Instance($this->modelWrapper))
             ->setUser($this->addUser())
             ->setUrl('http://arthur.dent/')
             ->setToken('ford')
@@ -44,13 +46,13 @@ class RemoveOldSessionsCommandTest extends MiddlewareFunctionalTest
         $modelManager->saveWithoutChildren($instance);
         $minusOneDay = new DateTime('-1 day');
         $modelManager->saveWithoutChildren(
-            (new Session())
+            (new Session($this->modelWrapper))
                 ->setId('marvin')
                 ->setInstance($instance)
                 ->setLastUpdate(new DateTimeImmutable('-1440 minutes'))
         );
         $modelManager->saveWithoutChildren(
-            (new Session())
+            (new Session($this->modelWrapper))
                 ->setId('no hope')
                 ->setInstance($instance)
                 ->setLastUpdate(new DateTimeImmutable('-1441 minutes'))
@@ -63,24 +65,18 @@ class RemoveOldSessionsCommandTest extends MiddlewareFunctionalTest
 
         $this->assertEquals(0, $this->removeOldSessionsCommand->execute());
 
-        $sessionTable = new mysqlTable(
-            $this->serviceManager->get(mysqlDatabase::class),
-            'middleware_chromecast_session'
-        );
+        $tableManager = $this->serviceManager->get(TableManager::class);
+        $chromecastSessionTable = $tableManager->getTable('middleware_chromecast_session');
+        $selectMarvin = (new SelectQuery($chromecastSessionTable))
+            ->addWhere(new Where('`id`=?', ['marvin']))
+        ;
+        $selectNoHope = (new SelectQuery($chromecastSessionTable))
+            ->addWhere(new Where('`id`=?', ['no hope']))
+        ;
+        /** @var Client $client */
+        $client = $this->serviceManager->get(Client::class);
 
-        $this->assertEquals(
-            1,
-            $sessionTable
-                ->setWhere('`id`=?')
-                ->setWhereParameters(['marvin'])
-                ->selectPrepared(),
-        );
-        $this->assertEquals(
-            0,
-            $sessionTable
-                ->setWhere('`id`=?')
-                ->setWhereParameters(['no hope'])
-                ->selectPrepared(),
-        );
+        $this->assertCount(1, iterator_to_array($client->execute($selectMarvin)->iterateRecords()));
+        $this->assertCount(0, iterator_to_array($client->execute($selectNoHope)->iterateRecords()));
     }
 }
