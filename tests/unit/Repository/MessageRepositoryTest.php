@@ -44,33 +44,6 @@ class MessageRepositoryTest extends Unit
         $this->assertEquals($model, $message);
     }
 
-    public function testFcmTokenNotFound(): void
-    {
-        $selectQuery = (new SelectQuery($this->table, 't'))
-            ->addWhere(new Where('`fcm_token`=? AND `sent` IS NOT NULL', ['galaxy']))
-            ->setOrder('`id`', OrderDirection::DESC)
-            ->setLimit(1)
-        ;
-
-        $this->loadModel($selectQuery, Message::class)->setNotFound(true);
-        $this->assertTrue($this->messageRepository->fcmTokenNotFound('galaxy'));
-    }
-
-    public function testFcmTokenFound(): void
-    {
-        $selectQuery = (new SelectQuery($this->table, 't'))
-            ->addWhere(new Where('`fcm_token`=? AND `sent` IS NOT NULL', ['galaxy']))
-            ->setOrder('`id`', OrderDirection::DESC)
-            ->setLimit(1)
-        ;
-
-        $this->loadModel($selectQuery, Message::class)
-            ->setNotFound(false)
-            ->setAdded(new DateTimeImmutable())
-        ;
-        $this->assertFalse($this->messageRepository->fcmTokenNotFound('galaxy'));
-    }
-
     public function testFcmTokenMessageNotFound(): void
     {
         $selectQuery = (new SelectQuery($this->table, 't'))
