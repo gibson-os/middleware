@@ -30,7 +30,7 @@ class MessageRepositoryTest extends Unit
 
     public function testGetUnsentMessages(): void
     {
-        $selectQuery = (new SelectQuery($this->table))
+        $selectQuery = (new SelectQuery($this->table, 't'))
             ->addWhere(new Where('`sent` IS NULL', []))
             ->setOrder('`id`')
         ;

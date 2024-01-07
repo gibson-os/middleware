@@ -16,7 +16,7 @@ class ChromecastReceiverAppIdInstall extends AbstractInstall implements Priority
     {
         yield $receiverAppIdIdInput = $this->getEnvInput(
             'CHROMECAST_RECEIVER_APP_ID',
-            'What is the Chromecast receiver app id?'
+            'What is the Chromecast receiver app id?',
         );
 
         yield (new Configuration('Chromecast configuration generated!'))

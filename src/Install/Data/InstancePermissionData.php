@@ -56,7 +56,7 @@ class InstancePermissionData extends AbstractInstall implements PriorityInterfac
                     ->setModule($middlewareModule)
                     ->setTask($instanceTask)
                     ->setAction($newTokenAction)
-                    ->setPermission(PermissionEnum::WRITE->value)
+                    ->setPermission(PermissionEnum::WRITE->value),
             );
         }
 

@@ -74,7 +74,7 @@ class SendCommand extends AbstractCommand
                     ->setTitle(null)
                     ->setBody(null)
                     ->setData([])
-                    ->setVibrate(null)
+                    ->setVibrate(null),
             );
         }
 

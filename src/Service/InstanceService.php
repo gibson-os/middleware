@@ -107,7 +107,7 @@ class InstanceService
             $instance->getUrl(),
             $module,
             $task,
-            $action
+            $action,
         )))
             ->setMethod($method)
             ->setParameters($parameters)
@@ -128,7 +128,7 @@ class InstanceService
         HttpMethod $method = HttpMethod::POST,
     ): Response {
         $response = $this->webService->request(
-            $this->getRequest($instance, $module, $task, $action, $parameters, $method)
+            $this->getRequest($instance, $module, $task, $action, $parameters, $method),
         );
 
         if ($response->getStatusCode() !== HttpStatusCode::OK) {

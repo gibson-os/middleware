@@ -57,7 +57,7 @@ class InstanceController extends AbstractController
             'core',
             'middleware',
             'confirm',
-            ['token' => $instance->getToken()]
+            ['token' => $instance->getToken()],
         );
 
         if ($instance->getId() === null) {

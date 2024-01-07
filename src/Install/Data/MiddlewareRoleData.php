@@ -51,7 +51,7 @@ class MiddlewareRoleData extends AbstractInstall implements PriorityInterface, S
                     ->setName('Middleware')
                     ->addPermissions([
                         $permission,
-                    ])
+                    ]),
             );
         }
 

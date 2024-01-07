@@ -89,7 +89,7 @@ class ChromecastPermissionData extends AbstractInstall implements PriorityInterf
                     ->setModule($this->module)
                     ->setTask($this->task)
                     ->setAction($actionModel)
-                    ->setPermission($permission->value)
+                    ->setPermission($permission->value),
             );
         }
     }

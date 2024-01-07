@@ -25,7 +25,7 @@ class CredentialsLoader
     {
         $credentials = GoogleCredentialsLoader::makeCredentials(
             ['https://www.googleapis.com/auth/cloud-platform'],
-            JsonUtility::decode(file_get_contents($this->googleCredentialFile))
+            JsonUtility::decode(file_get_contents($this->googleCredentialFile)),
         );
         $authToken = $credentials->fetchAuthToken();
 

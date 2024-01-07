@@ -174,7 +174,7 @@ class ChromecastController extends AbstractController
                 'sessionId' => $session->getId(),
                 'token' => $token,
                 'position' => (string) $position,
-            ]
+            ],
         );
         $modelManager->saveWithoutChildren($session->setLastUpdate(new DateTimeImmutable()));
 
@@ -273,7 +273,7 @@ class ChromecastController extends AbstractController
                 'Content-Length' => strlen($body),
                 'Content-Transfer-Encoding' => 'binary',
                 'Content-Disposition' => 'inline; filename*=UTF-8\'\'image.jpg filename="image.jpg"',
-            ]
+            ],
         );
     }
 

@@ -27,7 +27,7 @@ class SessionRepositoryTest extends Unit
     public function testGetLastUpdateOlderThan(): void
     {
         $date = new DateTimeImmutable();
-        $selectQuery = (new SelectQuery($this->table))
+        $selectQuery = (new SelectQuery($this->table, 't'))
             ->addWhere(new Where('`last_update`<?', [$date->format('Y-m-d H:i:s')]))
         ;
 

@@ -25,7 +25,7 @@ class InstanceAttribute implements ParameterAttributeInterface, AttributeService
     public function replace(
         AttributeInterface $attribute,
         array $parameters,
-        ReflectionParameter $reflectionParameter
+        ReflectionParameter $reflectionParameter,
     ): ?Instance {
         if (!$attribute instanceof GetInstance) {
             return null;
