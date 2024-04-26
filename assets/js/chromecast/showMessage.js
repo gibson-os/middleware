@@ -7,8 +7,8 @@ Chromecast.showMessage = (message, image) => {
 
     Chromecast.message.html(message);
     Chromecast.messageImage.css('background-image', backgroundImage);
-    Chromecast.messageContainer.css('opacity', 1);
+    Chromecast.messageContainer.css('display', 'block');
     window.setTimeout(() => {
-        Chromecast.messageContainer.css('opacity', 0);
+        Chromecast.messageContainer.css('display', 'none');
     }, 2500);
 }
