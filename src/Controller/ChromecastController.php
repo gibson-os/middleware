@@ -234,8 +234,8 @@ class ChromecastController extends AbstractController
         #[GetModel]
         Session $session,
         string $token,
-        int $width = null,
-        int $height = null,
+        ?int $width = null,
+        ?int $height = null,
     ): ResponseInterface {
         $parameters = [
             'sessionId' => $session->getId(),
