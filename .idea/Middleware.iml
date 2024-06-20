@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/tests/functional" isTestSource="false" packagePrefix="GibsonOS\Test\Functional\Middleware\" />
       <sourceFolder url="file://$MODULE_DIR$/tests/unit" isTestSource="false" packagePrefix="GibsonOS\Test\Unit\Middleware\" />
+      <sourceFolder url="file://$MODULE_DIR$/spec" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine/lexer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine/instantiator" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine/annotations" />
@@ -132,6 +133,15 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/php-http/promise" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/polyfill-php82" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/captainhook/secrets" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/clue/ndjson-react" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/evenement/evenement" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/react/cache" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/react/child-process" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/react/dns" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/react/event-loop" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/react/promise" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/react/socket" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/react/stream" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
