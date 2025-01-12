@@ -19,19 +19,19 @@ class PriceRatingQueryBuilder
     {
         $query = [];
 
-        if ($this->thresholdPercentagesQueryBuilder !== null) {
+        if ($this->thresholdPercentagesQueryBuilder instanceof ThresholdPercentagesQueryBuilder) {
             $query['thresholdPercentages'] = $this->thresholdPercentagesQueryBuilder->build();
         }
 
-        if ($this->hourlyQueryBuilder !== null) {
+        if ($this->hourlyQueryBuilder instanceof TypeQueryBuilder) {
             $query['hourly'] = $this->hourlyQueryBuilder->build();
         }
 
-        if ($this->dailyQueryBuilder !== null) {
+        if ($this->dailyQueryBuilder instanceof TypeQueryBuilder) {
             $query['daily'] = $this->dailyQueryBuilder->build();
         }
 
-        if ($this->monthlyQueryBuilder !== null) {
+        if ($this->monthlyQueryBuilder instanceof TypeQueryBuilder) {
             $query['monthly'] = $this->monthlyQueryBuilder->build();
         }
 

@@ -160,7 +160,7 @@ class ChromecastController extends AbstractController
         string $token,
         int $position,
     ): AjaxResponse {
-        if (count($users) === 0) {
+        if ($users === []) {
             $users = [$userRepository->getFirst($session)];
         }
 

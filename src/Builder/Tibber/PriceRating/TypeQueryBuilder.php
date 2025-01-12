@@ -17,7 +17,7 @@ class TypeQueryBuilder
             'currency',
         ];
 
-        if ($this->entriesQueryBuilder !== null) {
+        if ($this->entriesQueryBuilder instanceof EntryQueryBuilder) {
             $query['entries'] = $this->entriesQueryBuilder->build();
         }
 

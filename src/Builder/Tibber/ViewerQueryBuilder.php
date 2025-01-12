@@ -17,7 +17,7 @@ class ViewerQueryBuilder
             'accountType',
         ];
 
-        if ($this->homeQueryBuilder !== null) {
+        if ($this->homeQueryBuilder instanceof HomeQueryBuilder) {
             $query['home'] = $this->homeQueryBuilder->build();
         }
 

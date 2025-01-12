@@ -31,27 +31,27 @@ class HomeQueryBuilder
             'mainFuseSize',
         ];
 
-        if ($this->addressQueryBuilder !== null) {
+        if ($this->addressQueryBuilder instanceof AddressQueryBuilder) {
             $query['address'] = $this->addressQueryBuilder->build();
         }
 
-        if ($this->ownerQueryBuilder !== null) {
+        if ($this->ownerQueryBuilder instanceof LegalEntityQueryBuilder) {
             $query['owner'] = $this->ownerQueryBuilder->build();
         }
 
-        if ($this->meteringPointDataQueryBuilder !== null) {
+        if ($this->meteringPointDataQueryBuilder instanceof MeteringPointDataQueryBuilder) {
             $query['meteringPointData'] = $this->meteringPointDataQueryBuilder->build();
         }
 
-        if ($this->subscriptionsQueryBuilder !== null) {
+        if ($this->subscriptionsQueryBuilder instanceof SubscriptionQueryBuilder) {
             $query['subscriptions'] = $this->subscriptionsQueryBuilder->build();
         }
 
-        if ($this->featuresQueryBuilder !== null) {
+        if ($this->featuresQueryBuilder instanceof FeaturesQueryBuilder) {
             $query['features'] = $this->featuresQueryBuilder->build();
         }
 
-        if ($this->currentSubscriptionQuery !== null) {
+        if ($this->currentSubscriptionQuery instanceof SubscriptionQueryBuilder) {
             $query['currentSubscription'] = $this->currentSubscriptionQuery->build();
         }
 

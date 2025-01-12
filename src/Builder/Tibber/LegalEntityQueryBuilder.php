@@ -22,11 +22,11 @@ class LegalEntityQueryBuilder
             'language',
         ];
 
-        if ($this->contactInfoQueryBuilder !== null) {
+        if ($this->contactInfoQueryBuilder instanceof ContactInfoQueryBuilder) {
             $query['contactInfo'] = $this->contactInfoQueryBuilder->build();
         }
 
-        if ($this->addressQueryBuilder !== null) {
+        if ($this->addressQueryBuilder instanceof AddressQueryBuilder) {
             $query['address'] = $this->addressQueryBuilder->build();
         }
 

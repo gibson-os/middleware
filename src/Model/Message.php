@@ -297,7 +297,7 @@ class Message extends AbstractModel implements JsonSerializable
             'body' => $this->getBody(),
         ];
 
-        if (count($this->getData())) {
+        if ($this->getData() !== []) {
             $data['data']['payload'] = JsonUtility::encode($this->getData(), JSON_THROW_ON_ERROR);
         }
 

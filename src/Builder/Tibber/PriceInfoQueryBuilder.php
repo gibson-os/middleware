@@ -15,15 +15,15 @@ class PriceInfoQueryBuilder
     {
         $query = [];
 
-        if ($this->currentQueryBuilder !== null) {
+        if ($this->currentQueryBuilder instanceof PriceQueryBuilder) {
             $query['current'] = $this->currentQueryBuilder->build();
         }
 
-        if ($this->today !== null) {
+        if ($this->today instanceof PriceQueryBuilder) {
             $query['today'] = $this->today->build();
         }
 
-        if ($this->tomorrow !== null) {
+        if ($this->tomorrow instanceof PriceQueryBuilder) {
             $query['tomorrow'] = $this->tomorrow->build();
         }
 

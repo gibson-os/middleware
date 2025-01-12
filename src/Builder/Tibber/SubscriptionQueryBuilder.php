@@ -20,15 +20,15 @@ class SubscriptionQueryBuilder
             'status',
         ];
 
-        if ($this->subscriberQueryBuilder !== null) {
+        if ($this->subscriberQueryBuilder instanceof LegalEntityQueryBuilder) {
             $query['subscriber'] = $this->subscriberQueryBuilder->build();
         }
 
-        if ($this->priceInfoQueryBuilder !== null) {
+        if ($this->priceInfoQueryBuilder instanceof PriceInfoQueryBuilder) {
             $query['priceInfo'] = $this->priceInfoQueryBuilder->build();
         }
 
-        if ($this->priceRatingQueryBuilder !== null) {
+        if ($this->priceRatingQueryBuilder instanceof PriceRatingQueryBuilder) {
             $query['priceRating'] = $this->priceRatingQueryBuilder->build();
         }
 
