@@ -16,6 +16,7 @@ use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Core\Wrapper\ModelWrapper;
 use JsonException;
 use JsonSerializable;
+use Override;
 
 /**
  * @method Message  setInstance(Instance $instance)
@@ -277,6 +278,7 @@ class Message extends AbstractModel implements JsonSerializable
     /**
      * @throws JsonException
      */
+    #[Override]
     public function jsonSerialize(): array
     {
         $data = [

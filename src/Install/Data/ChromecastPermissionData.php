@@ -23,6 +23,7 @@ use GibsonOS\Core\Service\PriorityInterface;
 use JsonException;
 use MDO\Exception\ClientException;
 use MDO\Exception\RecordException;
+use Override;
 use ReflectionException;
 
 class ChromecastPermissionData extends AbstractInstall implements PriorityInterface, SingleInstallInterface
@@ -48,6 +49,7 @@ class ChromecastPermissionData extends AbstractInstall implements PriorityInterf
      * @throws SaveError
      * @throws SelectError
      */
+    #[Override]
     public function install(string $module): Generator
     {
         $this->module = $this->moduleRepository->getByName('middleware');
@@ -94,16 +96,19 @@ class ChromecastPermissionData extends AbstractInstall implements PriorityInterf
         }
     }
 
+    #[Override]
     public function getPart(): string
     {
         return InstallService::PART_DATA;
     }
 
+    #[Override]
     public function getModule(): ?string
     {
         return 'middleware';
     }
 
+    #[Override]
     public function getPriority(): int
     {
         return 0;

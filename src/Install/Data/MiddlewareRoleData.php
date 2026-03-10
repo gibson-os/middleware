@@ -18,6 +18,7 @@ use GibsonOS\Core\Service\PriorityInterface;
 use JsonException;
 use MDO\Exception\ClientException;
 use MDO\Exception\RecordException;
+use Override;
 use ReflectionException;
 
 class MiddlewareRoleData extends AbstractInstall implements PriorityInterface, SingleInstallInterface
@@ -37,6 +38,7 @@ class MiddlewareRoleData extends AbstractInstall implements PriorityInterface, S
      * @throws RecordException
      * @throws ReflectionException
      */
+    #[Override]
     public function install(string $module): Generator
     {
         try {
@@ -58,11 +60,13 @@ class MiddlewareRoleData extends AbstractInstall implements PriorityInterface, S
         yield new Success('Add middleware role!');
     }
 
+    #[Override]
     public function getPart(): string
     {
         return InstallService::PART_DATA;
     }
 
+    #[Override]
     public function getPriority(): int
     {
         return 0;

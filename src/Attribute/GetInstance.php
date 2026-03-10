@@ -6,10 +6,12 @@ namespace GibsonOS\Module\Middleware\Attribute;
 use Attribute;
 use GibsonOS\Core\Attribute\AttributeInterface;
 use GibsonOS\Module\Middleware\Service\Attribute\InstanceAttribute;
+use Override;
 
 #[Attribute(Attribute::TARGET_PARAMETER | Attribute::TARGET_PROPERTY)]
 class GetInstance implements AttributeInterface
 {
+    #[Override]
     public function getAttributeServiceName(): string
     {
         return InstanceAttribute::class;

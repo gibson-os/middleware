@@ -12,6 +12,7 @@ use GibsonOS\Core\Service\RequestService;
 use GibsonOS\Module\Middleware\Attribute\GetInstance;
 use GibsonOS\Module\Middleware\Model\Instance;
 use GibsonOS\Module\Middleware\Repository\InstanceRepository;
+use Override;
 use ReflectionParameter;
 
 class InstanceAttribute implements ParameterAttributeInterface, AttributeServiceInterface
@@ -22,6 +23,7 @@ class InstanceAttribute implements ParameterAttributeInterface, AttributeService
     ) {
     }
 
+    #[Override]
     public function replace(
         AttributeInterface $attribute,
         array $parameters,

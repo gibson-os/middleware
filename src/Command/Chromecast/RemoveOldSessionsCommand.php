@@ -12,6 +12,7 @@ use GibsonOS\Core\Manager\ModelManager;
 use GibsonOS\Core\Service\DateTimeService;
 use GibsonOS\Module\Middleware\Repository\Chromecast\SessionRepository;
 use JsonException;
+use Override;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -35,6 +36,7 @@ class RemoveOldSessionsCommand extends AbstractCommand
      * @throws SelectError
      * @throws JsonException
      */
+    #[Override]
     protected function run(): int
     {
         foreach ($this->sessionRepository->getLastUpdateOlderThan($this->dateTimeService->get('-1 day')) as $session) {

@@ -17,6 +17,7 @@ use GibsonOS\Module\Middleware\Exception\FcmException;
 use GibsonOS\Module\Middleware\Repository\MessageRepository;
 use GibsonOS\Module\Middleware\Service\FcmService;
 use JsonException;
+use Override;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -47,6 +48,7 @@ class SendCommand extends AbstractCommand
      * @throws JsonException
      * @throws FcmException
      */
+    #[Override]
     protected function run(): int
     {
         foreach ($this->messageRepository->getUnsentMessages() as $unsentMessage) {

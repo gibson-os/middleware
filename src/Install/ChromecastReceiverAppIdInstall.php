@@ -9,9 +9,11 @@ use GibsonOS\Core\Install\AbstractInstall;
 use GibsonOS\Core\Install\SingleInstallInterface;
 use GibsonOS\Core\Service\InstallService;
 use GibsonOS\Core\Service\PriorityInterface;
+use Override;
 
 class ChromecastReceiverAppIdInstall extends AbstractInstall implements PriorityInterface, SingleInstallInterface
 {
+    #[Override]
     public function install(string $module): Generator
     {
         yield $receiverAppIdIdInput = $this->getEnvInput(
@@ -24,11 +26,13 @@ class ChromecastReceiverAppIdInstall extends AbstractInstall implements Priority
         ;
     }
 
+    #[Override]
     public function getPart(): string
     {
         return InstallService::PART_CONFIG;
     }
 
+    #[Override]
     public function getPriority(): int
     {
         return 0;

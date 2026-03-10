@@ -21,6 +21,7 @@ use GibsonOS\Core\Service\PriorityInterface;
 use JsonException;
 use MDO\Exception\ClientException;
 use MDO\Exception\RecordException;
+use Override;
 use ReflectionException;
 
 class InstancePermissionData extends AbstractInstall implements PriorityInterface, SingleInstallInterface
@@ -42,6 +43,7 @@ class InstancePermissionData extends AbstractInstall implements PriorityInterfac
      * @throws ClientException
      * @throws RecordException
      */
+    #[Override]
     public function install(string $module): Generator
     {
         $middlewareModule = $this->moduleRepository->getByName('middleware');
@@ -63,16 +65,19 @@ class InstancePermissionData extends AbstractInstall implements PriorityInterfac
         yield new Success('Set instance permission for middleware!');
     }
 
+    #[Override]
     public function getPart(): string
     {
         return InstallService::PART_DATA;
     }
 
+    #[Override]
     public function getModule(): ?string
     {
         return 'middleware';
     }
 
+    #[Override]
     public function getPriority(): int
     {
         return 0;

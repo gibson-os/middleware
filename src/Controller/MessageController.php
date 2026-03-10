@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace GibsonOS\Module\Middleware\Controller;
 
 use GibsonOS\Core\Attribute\CheckPermission;
-use GibsonOS\Core\Attribute\GetObject;
+use GibsonOS\Core\Attribute\GetMappedModel;
 use GibsonOS\Core\Controller\AbstractController;
 use GibsonOS\Core\Enum\HttpStatusCode;
 use GibsonOS\Core\Enum\Permission;
@@ -25,7 +25,7 @@ class MessageController extends AbstractController
     public function postPush(
         MessageRepository $messageRepository,
         ModelManager $modelManager,
-        #[GetObject]
+        #[GetMappedModel]
         Message $message,
         #[GetInstance]
         Instance $instance,
@@ -34,7 +34,10 @@ class MessageController extends AbstractController
             return $this->returnFailure('FCM token not found', HttpStatusCode::NOT_FOUND);
         }
 
-        $message->setInstance($instance);
+        $message
+            ->setId(null)
+            ->setInstance($instance)
+        ;
         $modelManager->saveWithoutChildren($message);
 
         return $this->returnSuccess();

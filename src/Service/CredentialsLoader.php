@@ -7,7 +7,6 @@ use GibsonOS\Core\Attribute\GetEnv;
 use GibsonOS\Core\Utility\JsonUtility;
 use GibsonOS\Module\Middleware\Exception\FcmException;
 use Google\Auth\CredentialsLoader as GoogleCredentialsLoader;
-use JsonException;
 
 class CredentialsLoader
 {
@@ -19,13 +18,18 @@ class CredentialsLoader
 
     /**
      * @throws FcmException
-     * @throws JsonException
      */
     public function getAccessToken(): string
     {
+        $googleCredentials = file_get_contents($this->googleCredentialFile);
+
+        if (!$googleCredentials) {
+            throw new FcmException('Could not read google credentials file!');
+        }
+
         $credentials = GoogleCredentialsLoader::makeCredentials(
             ['https://www.googleapis.com/auth/cloud-platform'],
-            JsonUtility::decode(file_get_contents($this->googleCredentialFile)),
+            JsonUtility::decode($googleCredentials),
         );
         $authToken = $credentials->fetchAuthToken();
 
