@@ -52,6 +52,9 @@ class Message extends AbstractModel implements JsonSerializable
     #[Column(length: 32)]
     private string $action;
 
+    #[Column(length: 32)]
+    private ?string $foreignId = null;
+
     #[Column]
     private array $data = [];
 
@@ -187,6 +190,18 @@ class Message extends AbstractModel implements JsonSerializable
     public function setAction(string $action): Message
     {
         $this->action = $action;
+
+        return $this;
+    }
+
+    public function getForeignId(): ?string
+    {
+        return $this->foreignId;
+    }
+
+    public function setForeignId(?string $foreignId): Message
+    {
+        $this->foreignId = $foreignId;
 
         return $this;
     }
