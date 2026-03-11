@@ -309,6 +309,7 @@ class Message extends AbstractModel implements JsonSerializable
             'module' => $this->getModule(),
             'task' => $this->getTask(),
             'action' => $this->getAction(),
+            'foreignId' => $this->getForeignId(),
             'vibrate' => JsonUtility::encode($this->getVibrate()?->getPattern() ?? []),
             'title' => $this->getTitle(),
             'body' => $this->getBody(),
